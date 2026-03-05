@@ -1,0 +1,19 @@
+# Bundled single-file output
+AsetKu.html
+
+# PowerShell build/patch scripts (not needed for web deployment)
+bundle.ps1
+patch_export.ps1
+patch_viewer.ps1
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Node (jika ada)
+node_modules/

@@ -601,7 +601,7 @@ function openAssetDetail(id) {
         ${history.length > 0 ? `
         <div class="detail-section">
           <div class="detail-section-title">Riwayat Penerimaan (${history.length} catatan)</div>
-          ${lastHistory ? `<div class="detail-row"><span>Penerima Terakhir</span><strong>${esc(lastHistory.nama)}</strong> <span style="color:var(--text-muted);font-size:11px">(${lastHistory.jabatan || ''} � ${lastHistory.departemen || ''})</span></div>` : ''}
+          ${lastHistory ? `<div class="detail-row"><span>Penerima Terakhir</span><strong>${esc(lastHistory.nama)}</strong> <span style="color:var(--text-muted);font-size:11px">(${lastHistory.jabatan || ''}  ${lastHistory.departemen || ''})</span></div>` : ''}
           ${lastHistory ? `<div class="detail-row"><span>Tanggal Terakhir</span>${new Date(lastHistory.tgl + 'T00:00:00').toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}</div>` : ''}
           ${lastHistory?.keterangan ? `<div class="detail-row"><span>Keterangan</span><span style="color:var(--text-secondary);font-size:12px">${esc(lastHistory.keterangan)}</span></div>` : ''}
         </div>` : ''}
@@ -609,6 +609,7 @@ function openAssetDetail(id) {
 
     // Wire footer buttons
     document.getElementById('detailEditBtn').onclick = () => { closeAssetDetail(); openEditModal(id); };
+    document.getElementById('detailDeleteBtn').onclick = () => { closeAssetDetail(); openDeleteModal(id); };
     document.getElementById('detailHistoryBtn').onclick = () => { closeAssetDetail(); navigateToHistoryForAsset(id); };
 
     document.getElementById('assetDetailModal').classList.add('open');
@@ -2197,7 +2198,7 @@ async function exportInspeksiPdf() {
             pdf.addImage(sliceCanvas.toDataURL('image/jpeg', 0.9), 'JPEG', margin, y, imgW, sliceH);
             srcY += sliceCanvas.height;
             remaining -= sliceH;
-            if (remaining > 0) { pdf.addPage(); pdf.setFillColor(13,17,23); pdf.rect(0,0,pageW,pageH,'F'); y = margin; }
+            if (remaining > 0) { pdf.addPage(); pdf.setFillColor(13, 17, 23); pdf.rect(0, 0, pageW, pageH, 'F'); y = margin; }
         }
         pdf.save(`inspeksi-aset-${new Date().toISOString().slice(0, 10)}.pdf`);
         showToast('File PDF Inspeksi berhasil diunduh', 'success');
