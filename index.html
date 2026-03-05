@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description"
+        content="Aplikasi Manajemen Aset Fisik - Kelola inventori aset perusahaan Anda secara efisien" />
+    <title>AsetKu — Manajemen Aset Fisik</title>
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#388bfd" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="AsetKu" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <!-- Export libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- QR Scan & Generate -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <!-- Firebase (Cloud Real-Time Sync) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="firebase-sync.js"></script>
+</head>
+
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">📦</div>
+                <span class="logo-text">AsetKu</span>
+            </div>
+            <button class="sidebar-close" id="sidebarClose">✕</button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-label">NAVIGASI</div>
+            <a class="nav-item active" data-page="dashboard" href="#">
+                <span class="nav-icon">🏠</span> Dashboard
+            </a>
+            <a class="nav-item" data-page="assets" href="#">
+                <span class="nav-icon">📋</span> Daftar Aset
+            </a>
+            <a class="nav-item" data-page="categories" href="#">
+                <span class="nav-icon">🗂️</span> Kategori
+            </a>
+            <a class="nav-item" data-page="locations" href="#">
+                <span class="nav-icon">📍</span> Lokasi
+            </a>
+            <a class="nav-item" data-page="reports" href="#">
+                <span class="nav-icon">📊</span> Laporan
+            </a>
+            <a class="nav-item" data-page="history" href="#">
+                <span class="nav-icon">📜</span> Riwayat Aset
+            </a>
+            <a class="nav-item" data-page="inspeksi" href="#" id="nav-inspeksi">
+                <span class="nav-icon">🔍</span> Inspeksi Aset
+            </a>
+            <div class="nav-label" style="margin-top:12px">ADMIN</div>
+            <a class="nav-item" data-page="database" href="#" id="nav-database">
+                <span class="nav-icon">🗄️</span> Database
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="user-avatar">A</div>
+                <div>
+                    <div class="user-name">Admin</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ===== OVERLAY ===== -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-wrapper">
+
+        <!-- TOP BAR -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-btn" id="menuBtn">☰</button>
+                <h1 class="page-title" id="pageTitle">Dashboard</h1>
+            </div>
+            <div class="topbar-right">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="globalSearch" placeholder="Cari aset..." />
+                    <button class="search-clear-btn" id="globalSearchClear" title="Hapus pencarian" style="display:none">✕</button>
+                </div>
+                <button class="btn btn-primary" id="addAssetBtn">
+                    <span>＋</span> Tambah Aset
+                </button>
+            </div>
+        </header>
+
+        <!-- PAGE: DASHBOARD -->
+        <main class="page" id="page-dashboard">
+
+            <!-- Hero Banner -->
+            <div class="dash-hero">
+                <div class="dash-hero-left">
+                    <div class="dash-greeting" id="dash-greeting">Selamat Datang 👋</div>
+                    <div class="dash-user-name" id="dash-user-name">Administrator</div>
+                    <div class="dash-date" id="dash-date"></div>
+                </div>
+                <div class="dash-hero-right">
+                    <div class="dash-summary-pill">
+                        <span class="dash-summary-dot aktif"></span>
+                        <span id="dash-hero-summary">Memuat data...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stat Cards -->
+            <div class="stats-grid">
+                <div class="stat-card card-blue">
+                    <div class="stat-card-glow blue-glow"></div>
+                    <div class="stat-icon-wrap blue-icon">📦</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="stat-total">0</div>
+                        <div class="stat-label">Total Aset Terdaftar</div>
+                    </div>
+                    <div class="stat-pulse blue-pulse"></div>
+                </div>
+                <div class="stat-card card-green">
+                    <div class="stat-card-glow green-glow"></div>
+                    <div class="stat-icon-wrap green-icon">✅</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="stat-aktif">0</div>
+                        <div class="stat-label">Aset Aktif & Beroperasi</div>
+                    </div>
+                    <div class="stat-bar-mini" id="dash-bar-aktif"></div>
+                    <div class="stat-pulse green-pulse"></div>
+                </div>
+                <div class="stat-card card-yellow">
+                    <div class="stat-card-glow yellow-glow"></div>
+                    <div class="stat-icon-wrap yellow-icon">🔧</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="stat-pemeliharaan">0</div>
+                        <div class="stat-label">Dalam Pemeliharaan</div>
+                    </div>
+                    <div class="stat-bar-mini" id="dash-bar-pemeliharaan"></div>
+                    <div class="stat-pulse yellow-pulse"></div>
+                </div>
+                <div class="stat-card card-red">
+                    <div class="stat-card-glow red-glow"></div>
+                    <div class="stat-icon-wrap red-icon">⚠️</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="stat-rusak">0</div>
+                        <div class="stat-label">Rusak / Nonaktif</div>
+                    </div>
+                    <div class="stat-bar-mini" id="dash-bar-rusak"></div>
+                    <div class="stat-pulse red-pulse"></div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <div class="qa-label">Aksi Cepat</div>
+                <div class="qa-buttons">
+                    <button class="qa-btn" data-page="assets" id="qa-add-aset">
+                        <span class="qa-icon">➕</span>
+                        <span>Tambah Aset</span>
+                    </button>
+                    <button class="qa-btn" data-page="assets">
+                        <span class="qa-icon">📋</span>
+                        <span>Daftar Aset</span>
+                    </button>
+                    <button class="qa-btn" data-page="history">
+                        <span class="qa-icon">📜</span>
+                        <span>Riwayat</span>
+                    </button>
+                    <button class="qa-btn" data-page="reports">
+                        <span class="qa-icon">📊</span>
+                        <span>Laporan</span>
+                    </button>
+                    <button class="qa-btn" data-page="categories">
+                        <span class="qa-icon">🗂️</span>
+                        <span>Kategori</span>
+                    </button>
+                    <button class="qa-btn" data-page="locations">
+                        <span class="qa-icon">📍</span>
+                        <span>Lokasi</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Condition Distribution Bar -->
+            <div class="card dash-condition-card">
+                <div class="card-header">
+                    <h3 class="card-title">📈 Distribusi Kondisi Aset</h3>
+                    <span class="dash-condition-legend" id="dash-cond-legend"></span>
+                </div>
+                <div style="padding:12px 20px 18px">
+                    <div class="stacked-bar-track" id="dash-condition-bar" style="height:24px"></div>
+                </div>
+            </div>
+
+            <!-- Charts row -->
+            <div class="charts-row">
+                <!-- By Category -->
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3 class="card-title">🗂️ Kategori</h3>
+                    </div>
+                    <div class="chart-container" id="chart-category"></div>
+                    <div class="chart-legend" id="legend-category"></div>
+                </div>
+
+                <!-- By Status -->
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3 class="card-title">🔵 Status Aset</h3>
+                    </div>
+                    <div class="chart-container" id="chart-status"></div>
+                    <div class="chart-legend" id="legend-status"></div>
+                </div>
+
+                <!-- By Location -->
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3 class="card-title">📍 Lokasi</h3>
+                    </div>
+                    <div class="chart-container" id="chart-location"></div>
+                    <div class="chart-legend" id="legend-location"></div>
+                </div>
+            </div>
+
+            <!-- Recent Assets -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🕒 Aset Terbaru Ditambahkan</h3>
+                    <button class="btn btn-outline-sm" data-page="assets">Lihat Semua →</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Kode Aset</th>
+                                <th>Nama Aset</th>
+                                <th>Kategori</th>
+                                <th>Lokasi</th>
+                                <th>Jml</th>
+                                <th>Kondisi</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- PAGE: DAFTAR ASET -->
+        <main class="page hidden" id="page-assets">
+            <div class="card">
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <div class="filter-group">
+                            <label>Kategori</label>
+                            <select id="filter-category">
+                                <option value="">Semua</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Lokasi</label>
+                            <select id="filter-location">
+                                <option value="">Semua</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Status</label>
+                            <select id="filter-status">
+                                <option value="">Semua</option>
+                                <option value="Aktif">Aktif</option>
+                                <option value="Pemeliharaan">Pemeliharaan</option>
+                                <option value="Rusak">Rusak</option>
+                                <option value="Nonaktif">Nonaktif</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Kondisi</label>
+                            <select id="filter-condition">
+                                <option value="">Semua</option>
+                                <option value="Baik">Baik</option>
+                                <option value="Cukup">Cukup</option>
+                                <option value="Buruk">Buruk</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="toolbar-right">
+                        <!-- Export Dropdown -->
+                        <div class="export-dropdown" id="exportDropdown">
+                            <button class="btn btn-outline-sm" id="exportBtn">⬇ Export ▾</button>
+                            <div class="export-menu" id="exportMenu">
+                                <button class="export-option" id="exportCsvBtn">
+                                    <span class="export-icon">📄</span>
+                                    <div><strong>CSV</strong>
+                                        <div class="export-desc">Kompatibel dengan semua spreadsheet</div>
+                                    </div>
+                                </button>
+                                <button class="export-option" id="exportExcelBtn">
+                                    <span class="export-icon">📊</span>
+                                    <div><strong>Excel (.xls)</strong>
+                                        <div class="export-desc">Buka langsung di Microsoft Excel</div>
+                                    </div>
+                                </button>
+                                <button class="export-option" id="exportPdfBtn">
+                                    <span class="export-icon">📕</span>
+                                    <div><strong>PDF</strong>
+                                        <div class="export-desc">Dokumen siap cetak format A4</div>
+                                    </div>
+                                </button>
+                                <button class="export-option" id="exportJpegBtn">
+                                    <span class="export-icon">🖼️</span>
+                                    <div><strong>JPEG (Gambar)</strong>
+                                        <div class="export-desc">Snapshot tabel sebagai gambar</div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-sm" id="printBtn">🖨 Print</button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="data-table sortable">
+                        <thead>
+                            <tr>
+                                <th data-sort="kode">Kode Aset <span class="sort-icon">⇕</span></th>
+                                <th data-sort="nama">Nama Aset <span class="sort-icon">⇕</span></th>
+                                <th data-sort="kategori">Kategori <span class="sort-icon">⇕</span></th>
+                                <th data-sort="merek">Merek / Model</th>
+                                <th data-sort="serialNumber">No. Seri</th>
+                                <th data-sort="spesifikasi">Spesifikasi</th>
+                                <th data-sort="lokasi">Lokasi <span class="sort-icon">⇕</span></th>
+                                <th data-sort="jumlah">Jumlah <span class="sort-icon">⇕</span></th>
+                                <th data-sort="satuan">Satuan</th>
+                                <th data-sort="kondisi">Kondisi <span class="sort-icon">⇕</span></th>
+                                <th data-sort="status">Status <span class="sort-icon">⇕</span></th>
+                                <th data-sort="tahun" title="Umur aset sejak tahun perolehan">Umur Aset ⇕</th>
+                                <th title="Jumlah riwayat penerimaan aset ini">Riwayat</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assets-table-body"></tbody>
+                    </table>
+                </div>
+                <div class="table-footer">
+                    <div class="table-info" id="table-info">Menampilkan 0 aset</div>
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- PAGE: KATEGORI -->
+        <main class="page hidden" id="page-categories">
+            <div class="two-col">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Kelola Kategori</h3>
+                    </div>
+                    <div class="inline-form">
+                        <input type="text" id="new-category-input" placeholder="Nama kategori baru..." />
+                        <button class="btn btn-primary" id="addCategoryBtn">Tambah</button>
+                    </div>
+                    <ul class="tag-list" id="category-list"></ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Ringkasan per Kategori</h3>
+                    </div>
+                    <div class="summary-list" id="category-summary"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- PAGE: LOKASI -->
+        <main class="page hidden" id="page-locations">
+            <div class="two-col">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Kelola Lokasi</h3>
+                    </div>
+                    <div class="inline-form">
+                        <input type="text" id="new-location-input" placeholder="Nama lokasi baru..." />
+                        <button class="btn btn-primary" id="addLocationBtn">Tambah</button>
+                    </div>
+                    <ul class="tag-list" id="location-list"></ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Ringkasan per Lokasi</h3>
+                    </div>
+                    <div class="summary-list" id="location-summary"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- PAGE: LAPORAN -->
+        <main class="page hidden" id="page-reports">
+            <div class="reports-grid" id="reports-grid"></div>
+        </main>
+
+        <!-- PAGE: DATABASE -->
+        <main class="page hidden" id="page-database">
+
+            <!-- Tab Bar -->
+            <div class="db-tabs" id="db-tabs">
+                <button class="db-tab active" data-tab="users">👤 Pengguna</button>
+                <button class="db-tab" data-tab="rawassets">📦 Aset (Raw)</button>
+                <button class="db-tab" data-tab="settings">⚙️ Pengaturan</button>
+                <button class="db-tab" data-tab="importexport">🔄 Import / Export</button>
+            </div>
+
+            <!-- TAB: USERS -->
+            <div class="db-panel" id="db-panel-users">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Manajemen Pengguna</h3>
+                        <button class="btn btn-primary" id="addUserBtn">＋ Tambah User</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Avatar</th>
+                                    <th>Username</th>
+                                    <th>Nama Lengkap</th>
+                                    <th>Role</th>
+                                    <th>Password</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: RAW ASSETS -->
+            <div class="db-panel hidden" id="db-panel-rawassets">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Data Aset (JSON Editor)</h3>
+                        <div style="display:flex;gap:8px">
+                            <button class="btn btn-outline-sm" id="rawLoadBtn">🔃 Muat</button>
+                            <button class="btn btn-primary" id="rawSaveBtn">💾 Simpan</button>
+                        </div>
+                    </div>
+                    <div style="padding:16px">
+                        <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Edit langsung data aset
+                            dalam format JSON. Tekan Simpan untuk menyimpan perubahan.</p>
+                        <textarea id="rawAssetsEditor" spellcheck="false"
+                            style="width:100%;height:400px;background:var(--bg-primary);border:1px solid var(--border);border-radius:6px;color:#e6edf3;padding:12px;font-family:monospace;font-size:12px;resize:vertical;outline:none;"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: SETTINGS -->
+            <div class="db-panel hidden" id="db-panel-settings">
+                <div class="db-settings-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">ℹ️ Info Database</h3>
+                        </div>
+                        <div class="summary-list" id="db-info-list"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🔁 Reset Data</h3>
+                        </div>
+                        <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+                            <p style="font-size:13px;color:var(--text-secondary)">Hapus seluruh data dan kembalikan ke
+                                data bawaan. Tindakan ini tidak bisa dibatalkan.</p>
+                            <button class="btn btn-danger" id="resetAssetsBtn" style="width:fit-content">🗑️ Reset Data
+                                Aset</button>
+                            <button class="btn btn-danger" id="resetAllBtn" style="width:fit-content">⚠️ Reset Semua
+                                Data</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🎨 Tampilan</h3>
+                        </div>
+                        <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+                            <div class="filter-group">
+                                <label>Jumlah baris per halaman</label>
+                                <select id="perPageSelect" style="width:160px">
+                                    <option value="5">5 baris</option>
+                                    <option value="10" selected>10 baris</option>
+                                    <option value="25">25 baris</option>
+                                    <option value="50">50 baris</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: IMPORT/EXPORT -->
+            <div class="db-panel hidden" id="db-panel-importexport">
+                <div class="db-settings-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">⬇️ Export Data</h3>
+                        </div>
+                        <div style="padding:20px;display:flex;flex-direction:column;gap:10px">
+                            <p style="font-size:13px;color:var(--text-secondary)">Unduh semua data aplikasi sebagai file
+                                backup.</p>
+                            <button class="btn btn-primary" id="exportJsonBtn" style="width:fit-content">📥 Export JSON
+                                (Backup Lengkap)</button>
+                            <button class="btn btn-outline-sm" id="exportCsvAllBtn" style="width:fit-content">📊 Export
+                                CSV (Aset)</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">⬆️ Import Data</h3>
+                        </div>
+                        <div style="padding:20px;display:flex;flex-direction:column;gap:10px">
+                            <p style="font-size:13px;color:var(--text-secondary)">Pulihkan data dari file backup JSON
+                                yang sudah diexport sebelumnya.</p>
+                            <label class="btn btn-outline-sm" style="width:fit-content;cursor:pointer">
+                                📂 Pilih File JSON
+                                <input type="file" id="importJsonFile" accept=".json" style="display:none" />
+                            </label>
+                            <div id="import-status" style="font-size:12px;color:var(--text-muted)"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- PAGE: INSPEKSI ASET -->
+        <main class="page hidden" id="page-inspeksi">
+            <!-- Summary Cards -->
+            <div class="inspeksi-summary" id="inspeksi-summary-strip"></div>
+
+            <div class="card" style="margin-top:16px">
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <div class="filter-group">
+                            <label>Lokasi</label>
+                            <select id="inspeksi-filter-lokasi">
+                                <option value="">Semua Lokasi</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Filter Status</label>
+                            <select id="inspeksi-filter-status">
+                                <option value="">Semua Status</option>
+                                <option value="Selesai">Selesai</option>
+                                <option value="Terlambat">Terlambat</option>
+                                <option value="Dijadwalkan">Dijadwalkan</option>
+                                <option value="Belum Diinspeksi">Belum Diinspeksi</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Cari Aset</label>
+                            <div class="search-input-wrap">
+                                <input type="text" id="inspeksi-search" placeholder="Nama / Kode aset..."
+                                    style="padding:6px 10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;outline:none;width:180px" />
+                                <button class="search-clear-btn" id="inspeksiSearchClear" title="Hapus pencarian" style="display:none">✕</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="toolbar-right">
+                        <span id="inspeksi-info" style="font-size:12px;color:var(--text-muted)"></span>
+                        <button class="btn btn-outline-sm" id="resetInspeksiBtn" title="Reset semua filter">🔄 Reset</button>
+                        <!-- Export Dropdown Inspeksi -->
+                        <div class="export-dropdown" id="inspeksiExportDropdown">
+                            <button class="btn btn-outline-sm" id="inspeksiExportBtn">⬇ Export ▾</button>
+                            <div class="export-menu" id="inspeksiExportMenu">
+                                <button class="export-option" id="inspeksiExportExcelBtn">
+                                    <span class="export-icon">📊</span>
+                                    <div><strong>Excel (.xls)</strong>
+                                        <div class="export-desc">Buka langsung di Microsoft Excel</div>
+                                    </div>
+                                </button>
+                                <button class="export-option" id="inspeksiExportPdfBtn">
+                                    <span class="export-icon">📕</span>
+                                    <div><strong>PDF</strong>
+                                        <div class="export-desc">Dokumen siap cetak format A4</div>
+                                    </div>
+                                </button>
+                                <button class="export-option" id="inspeksiExportJpegBtn">
+                                    <span class="export-icon">🖼️</span>
+                                    <div><strong>JPEG (Gambar)</strong>
+                                        <div class="export-desc">Snapshot tabel sebagai gambar</div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-sm" id="inspeksiPrintBtn">🖨 Print</button>
+                        <button class="btn btn-outline-sm" id="scanQrBtn" onclick="openScanModal()">
+                            📷 Scan QR Aset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Location-grouped content -->
+                <div id="inspeksi-location-container" style="padding:8px 0"></div>
+            </div>
+        </main>
+
+        <!-- PAGE: RIWAYAT ASET -->
+        <main class="page hidden" id="page-history">
+            <div class="card">
+                <!-- Toolbar riwayat -->
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <div class="filter-group">
+                            <label>Filter Aset</label>
+                            <select id="history-filter-aset">
+                                <option value="">Semua Aset</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Cari Riwayat</label>
+                            <input type="text" id="history-search"
+                                placeholder="Nama · NIK · No. Seri · Tanggal (cth: 2024-01)..."
+                                style="padding:6px 10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;outline:none;width:300px;transition:border-color .2s"
+                                onfocus="this.style.borderColor='var(--accent-blue)'"
+                                onblur="this.style.borderColor='var(--border)'" />
+                        </div>
+                    </div>
+                    <div class="toolbar-right">
+                        <button class="btn btn-primary" id="addHistoryBtn">＋ Tambah Riwayat</button>
+                        <button class="btn btn-outline-sm" id="exportHistoryCsvBtn">⬇ Export CSV</button>
+                    </div>
+                </div>
+                <!-- Serial-number group banner (shown when assets share SN) -->
+                <div id="history-group-banner" style="display:none;padding:0 0 4px 0;"></div>
+
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Kode Aset</th>
+                                <th>Nama Aset</th>
+                                <th>NIK</th>
+                                <th>Nama Penerima</th>
+                                <th>Jabatan</th>
+                                <th>Departemen</th>
+                                <th>Tgl Diterima</th>
+                                <th>Keterangan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body"></tbody>
+                    </table>
+                </div>
+                <div class="table-footer">
+                    <div class="table-info" id="history-info">0 riwayat</div>
+                </div>
+            </div>
+        </main>
+
+    </div><!-- /.main-wrapper -->
+
+    <!-- ===== MODAL RIWAYAT ===== -->
+    <div class="modal-backdrop" id="historyModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="history-modal-title">Tambah Riwayat Penerimaan</h2>
+                <button class="modal-close" id="historyModalClose">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="historyForm" novalidate>
+                    <input type="hidden" id="h-id" />
+                    <div class="form-group">
+                        <label for="h-aset">Aset <span class="required">*</span></label>
+                        <select id="h-aset" required>
+                            <option value="">-- Pilih Aset --</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="h-nik">NIK <span class="required">*</span></label>
+                            <input type="text" id="h-nik" placeholder="Nomor Induk Karyawan" />
+                        </div>
+                        <div class="form-group">
+                            <label for="h-nama">Nama <span class="required">*</span></label>
+                            <input type="text" id="h-nama" placeholder="Nama penerima aset" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="h-jabatan">Jabatan</label>
+                            <input type="text" id="h-jabatan" placeholder="Jabatan / posisi" />
+                        </div>
+                        <div class="form-group">
+                            <label for="h-departemen">Departemen</label>
+                            <input type="text" id="h-departemen" placeholder="Nama departemen" />
+                        </div>
+                        <div class="form-group">
+                            <label for="h-tgl">Tgl Diterima <span class="required">*</span></label>
+                            <input type="date" id="h-tgl" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="h-keterangan">Keterangan</label>
+                        <textarea id="h-keterangan" rows="2"
+                            placeholder="Catatan penerimaan, kondisi saat serah terima, dll..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="historyCancelBtn">Batal</button>
+                <button class="btn btn-primary" id="historySaveBtn">Simpan Riwayat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL QR SCAN ===== -->
+    <div class="modal-backdrop" id="qrScanModal">
+        <div class="modal modal-qr">
+            <div class="modal-header">
+                <h2 class="modal-title">📷 Scan QR Aset</h2>
+                <button class="modal-close" id="qrScanClose">✕</button>
+            </div>
+            <div class="modal-body" style="padding:16px;display:flex;flex-direction:column;align-items:center;gap:16px">
+                <!-- Viewfinder -->
+                <div class="qr-viewfinder" id="qrViewfinder">
+                    <video id="qrVideo" playsinline autoplay muted
+                        style="width:100%;height:100%;object-fit:cover;border-radius:8px"></video>
+                    <canvas id="qrCanvas" style="display:none"></canvas>
+                    <div class="qr-scan-line" id="qrScanLine"></div>
+                    <div class="qr-corner qr-tl"></div>
+                    <div class="qr-corner qr-tr"></div>
+                    <div class="qr-corner qr-bl"></div>
+                    <div class="qr-corner qr-br"></div>
+                    <div id="qrNoCameraMsg"
+                        style="display:none;position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--text-muted);background:var(--bg-secondary);border-radius:8px">
+                        <span style="font-size:32px">📷</span>
+                        <span style="font-size:13px">Kamera tidak tersedia</span>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div id="qrStatus" class="qr-status qr-status-waiting">Arahkan kamera ke QR code aset...</div>
+
+                <!-- Manual fallback -->
+                <div style="width:100%;display:flex;gap:8px;align-items:center">
+                    <div style="flex:1;height:1px;background:var(--border)"></div>
+                    <span style="font-size:11px;color:var(--text-muted)">atau ketik manual</span>
+                    <div style="flex:1;height:1px;background:var(--border)"></div>
+                </div>
+                <div style="display:flex;gap:8px;width:100%">
+                    <input type="text" id="qrManualInput" placeholder="Ketik Kode Aset atau No. Seri..."
+                        style="flex:1;padding:8px 12px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;outline:none"
+                        onkeydown="if(event.key==='Enter') onQRDetected(this.value.trim())" />
+                    <button class="btn btn-primary"
+                        onclick="onQRDetected(document.getElementById('qrManualInput').value.trim())">Cari</button>
+                </div>
+
+                <!-- Match result -->
+                <div id="qrMatchResult" style="display:none;width:100%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL INSPEKSI ASET ===== -->
+    <div class="modal-backdrop" id="inspeksiModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="inspeksiModalTitle">Tambah Jadwal Inspeksi</h2>
+                <button class="modal-close" id="inspeksiModalClose">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group" style="flex:2">
+                        <label>Aset <span class="required">*</span></label>
+                        <select id="inspeksi-aset-select"></select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tanggal Inspeksi <span class="required">*</span></label>
+                        <input type="date" id="inspeksi-tgl" />
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="inspeksi-status">
+                            <option value="Dijadwalkan">Dijadwalkan</option>
+                            <option value="Selesai">Selesai</option>
+                            <option value="Terlambat">Terlambat</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Kondisi Temuan</label>
+                        <select id="inspeksi-kondisi">
+                            <option value="">— Belum Diperiksa —</option>
+                            <option value="Baik">Baik</option>
+                            <option value="Cukup">Cukup</option>
+                            <option value="Buruk">Buruk</option>
+                            <option value="Perlu Tindakan">Perlu Tindakan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Inspektur</label>
+                        <input type="text" id="inspeksi-inspektur" placeholder="Nama inspektur..." />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Catatan / Keterangan</label>
+                    <textarea id="inspeksi-catatan" rows="2" placeholder="Catatan inspeksi, temuan, saran tindakan..."></textarea>
+                </div>
+                <div style="padding:10px 0 4px;font-size:12px;color:var(--text-muted)">
+                    💡 <em>Kondisi aset dapat diperbarui langsung dari tombol di baris tabel setelah disimpan.</em>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="inspeksiCancelBtn">Batal</button>
+                <button class="btn btn-primary" id="inspeksiSaveBtn">Simpan Inspeksi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL DETAIL ASET ===== -->
+    <div class="modal-backdrop" id="assetDetailModal">
+        <div class="modal modal-detail">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title" id="detail-title">Detail Aset</h2>
+                    <div id="detail-kode"
+                        style="font-size:12px;color:var(--accent-blue);margin-top:2px;font-family:monospace"></div>
+                </div>
+                <button class="modal-close" id="detailModalClose">✕</button>
+            </div>
+            <div class="modal-body" id="detail-body" style="padding:0">
+                <!-- Rendered by JS -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="detailCloseBtn">Tutup</button>
+                <button class="btn btn-outline-sm" id="detailHistoryBtn">📜 Lihat Riwayat</button>
+                <button class="btn btn-primary" id="detailEditBtn">✏️ Edit Aset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL TAMBAH/EDIT ASET ===== -->
+    <div class="modal-backdrop" id="assetModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Tambah Aset Baru</h2>
+                <button class="modal-close" id="modalClose">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="assetForm" novalidate>
+                    <input type="hidden" id="asset-id" />
+
+                    <div class="form-section-title">Informasi Umum</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="f-kode">Kode Aset <span class="required">*</span></label>
+                            <input type="text" id="f-kode" placeholder="cth: AST-001" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="f-nama">Nama Aset <span class="required">*</span></label>
+                            <input type="text" id="f-nama" placeholder="Nama aset" required />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="f-kategori">Kategori <span class="required">*</span></label>
+                            <select id="f-kategori" required>
+                                <option value="">-- Pilih Kategori --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="f-merek">Merek / Model</label>
+                            <input type="text" id="f-merek" placeholder="Merek atau model" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="f-serial">Nomor Seri</label>
+                            <input type="text" id="f-serial" placeholder="Nomor seri / barcode" />
+                        </div>
+                        <div class="form-group">
+                            <label for="f-tahun">Tahun Perolehan</label>
+                            <input type="number" id="f-tahun" placeholder="2024" min="1900" max="2100" />
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">Lokasi & Penugasan</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="f-lokasi">Lokasi <span class="required">*</span></label>
+                            <select id="f-lokasi" required>
+                                <option value="">-- Pilih Lokasi --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="f-penanggungjawab">Penanggung Jawab</label>
+                            <input type="text" id="f-penanggungjawab" placeholder="Nama penanggung jawab" />
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">Detail Fisik</div>
+                    <div class="form-row">
+                        <div class="form-group form-group-sm">
+                            <label for="f-jumlah">Jumlah <span class="required">*</span></label>
+                            <input type="number" id="f-jumlah" placeholder="1" min="0" required />
+                        </div>
+                        <div class="form-group form-group-sm">
+                            <label for="f-satuan">Satuan</label>
+                            <input type="text" id="f-satuan" placeholder="unit / pcs / set" />
+                        </div>
+                        <div class="form-group">
+                            <label for="f-kondisi">Kondisi</label>
+                            <select id="f-kondisi">
+                                <option value="Baik">Baik</option>
+                                <option value="Cukup">Cukup</option>
+                                <option value="Buruk">Buruk</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="f-status">Status</label>
+                            <select id="f-status">
+                                <option value="Aktif">Aktif</option>
+                                <option value="Pemeliharaan">Pemeliharaan</option>
+                                <option value="Rusak">Rusak</option>
+                                <option value="Nonaktif">Nonaktif</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="f-spesifikasi">Spesifikasi</label>
+                        <textarea id="f-spesifikasi" rows="2"
+                            placeholder="Contoh: RAM 8GB, SSD 256GB, Intel Core i5..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="f-deskripsi">Deskripsi / Catatan</label>
+                        <textarea id="f-deskripsi" rows="2" placeholder="Deskripsi tambahan atau catatan..."></textarea>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="cancelBtn">Batal</button>
+                <button class="btn btn-primary" id="saveBtn">Simpan Aset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL KONFIRMASI HAPUS ===== -->
+    <div class="modal-backdrop" id="deleteModal">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h2 class="modal-title">Hapus Aset</h2>
+                <button class="modal-close" id="deleteModalClose">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="delete-confirm-icon">🗑️</div>
+                <p class="delete-confirm-text">Apakah Anda yakin ingin menghapus aset ini? Tindakan ini tidak dapat
+                    dibatalkan.</p>
+                <p class="delete-confirm-name" id="deleteAssetName">—</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="deleteCancelBtn">Batal</button>
+                <button class="btn btn-danger" id="deleteConfirmBtn">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== LOGOUT OVERLAY ===== -->
+    <div class="logout-overlay" id="logoutOverlay">
+        <div class="logout-ripple"></div>
+        <div class="logout-ripple logout-ripple-2"></div>
+        <div class="logout-ripple logout-ripple-3"></div>
+        <div class="logout-content">
+            <div class="logout-logo">🗃️</div>
+            <div class="logout-title">AsetKu</div>
+            <div class="logout-bye">Sampai jumpa lagi!</div>
+            <div class="logout-user" id="logout-user-name"></div>
+            <div class="logout-progress-wrap">
+                <div class="logout-progress-bar" id="logout-progress-bar"></div>
+            </div>
+            <div class="logout-msg">Sesi berakhir, mengalihkan ke halaman login...</div>
+        </div>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
+
+    <script src="app.js"></script>
+    <script>
+        // ── PWA Service Worker Registration ──
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+                    .catch(err => console.warn('[PWA] SW registration failed:', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

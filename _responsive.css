@@ -1,0 +1,450 @@
+/* ===========================
+   ENHANCED RESPONSIVE — SEMUA PERANGKAT
+   =========================== */
+
+/* ── TABLET (1024px) ────────────────────────── */
+@media (max-width: 1024px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar-close {
+        display: flex;
+    }
+
+    .main-wrapper {
+        margin-left: 0;
+    }
+
+    .menu-btn {
+        display: flex;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .charts-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dash-hero {
+        padding: 18px 20px;
+    }
+
+    .dash-user-name {
+        font-size: 20px;
+    }
+
+    .quick-actions {
+        gap: 10px;
+    }
+
+    .qa-buttons {
+        gap: 6px;
+    }
+
+    .qa-btn {
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+}
+
+/* ── MOBILE (768px) ─────────────────────────── */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .stat-card {
+        padding: 14px 16px;
+    }
+
+    .stat-value {
+        font-size: 22px;
+    }
+
+    .stat-label {
+        font-size: 11px;
+    }
+
+    .stat-icon-wrap {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+
+    .charts-row {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    /* Dashboard hero */
+    .dash-hero {
+        padding: 16px;
+        gap: 10px;
+    }
+
+    .dash-user-name {
+        font-size: 18px;
+    }
+
+    .dash-greeting {
+        font-size: 12px;
+    }
+
+    .dash-hero-right {
+        display: none;
+    }
+
+    /* Quick actions */
+    .quick-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .qa-buttons {
+        width: 100%;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 4px;
+    }
+
+    .qa-buttons::-webkit-scrollbar {
+        display: none;
+    }
+
+    .qa-btn {
+        flex-shrink: 0;
+    }
+
+    /* Tables: horizontal scroll */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+        min-width: 600px;
+    }
+
+    /* Modals: near full-screen on mobile */
+    .modal {
+        width: 95vw;
+        max-width: none;
+        max-height: 92vh;
+        margin: 16px;
+        border-radius: 14px;
+    }
+
+    .modal-detail {
+        width: 95vw;
+    }
+
+    .modal-qr {
+        width: 95vw;
+    }
+
+    .modal-body {
+        padding: 16px;
+    }
+
+    /* Toolbar */
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .toolbar-left {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .toolbar-right {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .filter-group {
+        min-width: 0;
+        flex: 1 1 120px;
+    }
+
+    .filter-group select,
+    .filter-group input {
+        width: 100%;
+    }
+
+    /* Page padding */
+    .page {
+        padding: 14px;
+    }
+
+    /* Two column layouts */
+    .two-col {
+        grid-template-columns: 1fr;
+    }
+
+    /* Form rows */
+    .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* Topbar */
+    .topbar {
+        padding: 0 12px;
+        height: 56px;
+    }
+
+    .page-title {
+        font-size: 16px;
+    }
+
+    .search-box {
+        width: 140px;
+    }
+
+    /* Table footer */
+    .table-footer {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+    .pagination {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Inspeksi page */
+    .inspeksi-summary {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .inspeksi-card {
+        padding: 12px;
+    }
+
+    .inspeksi-card-value {
+        font-size: 20px;
+    }
+
+    /* Lokasi group */
+    .lokasi-group-header {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .lokasi-progress-bar {
+        width: 80px !important;
+    }
+
+    /* QR viewfinder */
+    .qr-viewfinder {
+        max-height: 260px;
+    }
+
+    /* QR match card */
+    .qr-match-card {
+        padding: 12px;
+    }
+
+    /* Database page */
+    .db-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 8px;
+    }
+
+    .db-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .db-tab {
+        flex-shrink: 0;
+        font-size: 12px;
+        padding: 7px 14px;
+    }
+
+    .db-settings-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Detail grid */
+    .detail-grid {
+        padding: 16px;
+    }
+
+    .detail-row {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    /* Card */
+    .card {
+        border-radius: 10px;
+    }
+
+    .card-header {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    /* Overlay */
+    .overlay.active {
+        display: block;
+    }
+
+    /* Compact add asset button */
+    #addAssetBtn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}
+
+/* ── SMALL MOBILE (480px) ───────────────────── */
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .stat-card {
+        padding: 12px 14px;
+    }
+
+    .topbar-right .search-box {
+        display: none;
+    }
+
+    .topbar-right {
+        gap: 8px;
+    }
+
+    .page-title {
+        font-size: 14px;
+    }
+
+    .modal {
+        width: 100vw;
+        max-height: 100vh;
+        max-height: 100dvh;
+        margin: 0;
+        border-radius: 0;
+    }
+
+    .modal-detail,
+    .modal-qr {
+        width: 100vw;
+        border-radius: 0;
+    }
+
+    .inspeksi-summary {
+        grid-template-columns: 1fr;
+    }
+
+    /* Quick action buttons — grid */
+    .qa-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        flex-wrap: unset;
+        overflow-x: unset;
+    }
+
+    .qa-btn {
+        justify-content: center;
+        padding: 10px 6px;
+        font-size: 11px;
+    }
+
+    /* Condition card */
+    .dash-condition-card .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .dash-condition-legend {
+        font-size: 10px;
+    }
+
+    /* Charts */
+    .chart-container {
+        min-height: 120px;
+    }
+
+    /* QR viewfinder */
+    .qr-viewfinder {
+        max-height: 220px;
+    }
+
+    /* Inspeksi quick buttons */
+    .qk-group {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .qk-btn {
+        font-size: 11px;
+        padding: 5px 8px;
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Card headers */
+    .card-title {
+        font-size: 14px;
+    }
+
+    /* Table text */
+    .data-table th,
+    .data-table td {
+        font-size: 12px;
+        padding: 8px 10px;
+    }
+
+    /* Modal footer stacked */
+    .modal-footer {
+        flex-direction: column-reverse;
+        gap: 8px;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+    }
+
+    /* Login in bundled mode */
+    .login-card {
+        padding: 20px;
+    }
+}
+
+/* ── PWA SAFE AREA (notch devices) ──────────── */
+@supports (padding: env(safe-area-inset-top)) {
+    .topbar {
+        padding-top: env(safe-area-inset-top);
+    }
+
+    .sidebar {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .modal {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}

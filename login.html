@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Login — AsetKu Manajemen Aset Fisik" />
+    <title>Login — AsetKu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #1c2129;
+            --border: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #656d76;
+            --accent-blue: #388bfd;
+            --accent-blue-dim: #1d3a6e;
+            --accent-green: #3fb950;
+            --accent-red: #f85149;
+            --accent-purple: #bc8cff;
+            --radius: 10px;
+            --radius-sm: 6px;
+            --transition: all 0.2s ease;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated background blobs */
+        .bg-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            animation: blob-float 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: #388bfd;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 350px;
+            height: 350px;
+            background: #bc8cff;
+            bottom: -80px;
+            right: -80px;
+            animation-delay: 3s;
+        }
+
+        .blob-3 {
+            width: 250px;
+            height: 250px;
+            background: #3fb950;
+            top: 60%;
+            left: 60%;
+            animation-delay: 6s;
+        }
+
+        @keyframes blob-float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(20px, -20px) scale(1.05);
+            }
+
+            66% {
+                transform: translate(-15px, 15px) scale(0.95);
+            }
+        }
+
+        /* Grid lines background */
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(56, 139, 253, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 139, 253, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        /* Login container */
+        .login-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        /* Logo header */
+        .login-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 14px;
+            box-shadow: 0 8px 32px rgba(56, 139, 253, 0.3);
+        }
+
+        .login-logo-text {
+            font-size: 26px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .login-logo-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Card */
+        .login-card {
+            background: rgba(28, 33, 41, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .login-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        /* Form */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            font-size: 16px;
+            pointer-events: none;
+            color: var(--text-muted);
+        }
+
+        .form-group input {
+            width: 100%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            padding: 10px 12px 10px 38px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(56, 139, 253, 0.15);
+        }
+
+        .form-group input.invalid {
+            border-color: var(--accent-red);
+        }
+
+        /* Password toggle */
+        .toggle-pw {
+            position: absolute;
+            right: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 16px;
+            padding: 4px;
+            transition: var(--transition);
+        }
+
+        .toggle-pw:hover {
+            color: var(--text-primary);
+        }
+
+        /* Remember me */
+        .form-row-inline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            accent-color: var(--accent-blue);
+            cursor: pointer;
+        }
+
+        /* Error message */
+        .error-msg {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-size: 13px;
+            color: var(--accent-red);
+            margin-bottom: 16px;
+            animation: shake 0.3s ease;
+        }
+
+        .error-msg.show {
+            display: flex;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-6px);
+            }
+
+            75% {
+                transform: translateX(6px);
+            }
+        }
+
+        /* Submit btn */
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #388bfd, #5c9dfd);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(56, 139, 253, 0.35);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Spinner */
+        .btn-login .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin: 0 auto;
+        }
+
+        .btn-login.loading .btn-text {
+            display: none;
+        }
+
+        .btn-login.loading .spinner {
+            display: block;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* Demo accounts */
+        .demo-accounts {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .demo-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .demo-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+
+        .demo-btn:hover {
+            background: var(--bg-card);
+            border-color: var(--accent-blue);
+        }
+
+        .demo-btn-info {
+            text-align: left;
+        }
+
+        .demo-btn-name {
+            font-weight: 600;
+        }
+
+        .demo-btn-cred {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        .demo-btn-role {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .role-admin {
+            background: rgba(56, 139, 253, 0.15);
+            color: var(--accent-blue);
+        }
+
+        .role-viewer {
+            background: rgba(63, 185, 80, 0.15);
+            color: var(--accent-green);
+        }
+
+        .role-user {
+            background: rgba(188, 140, 255, 0.15);
+            color: var(--accent-purple);
+        }
+
+        /* Footer */
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 18px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 1000;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Background -->
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+    <div class="bg-blob blob-3"></div>
+
+    <div class="login-wrapper">
+
+        <!-- Logo -->
+        <div class="login-logo">
+            <div class="login-logo-icon">📦</div>
+            <div class="login-logo-text">AsetKu</div>
+            <div class="login-logo-sub">Sistem Manajemen Aset Fisik</div>
+        </div>
+
+        <!-- Card -->
+        <div class="login-card">
+            <h1 class="login-title">Selamat Datang!</h1>
+            <p class="login-subtitle">Login untuk mengakses dashboard aset</p>
+
+            <!-- Error -->
+            <div class="error-msg" id="errorMsg">
+                <span>⚠️</span>
+                <span id="errorText">Username atau password salah.</span>
+            </div>
+
+            <!-- Form -->
+            <form id="loginForm" novalidate>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="username" placeholder="Masukkan username" autocomplete="username" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="password" placeholder="Masukkan password"
+                            autocomplete="current-password" />
+                        <button type="button" class="toggle-pw" id="togglePw" title="Tampilkan/Sembunyikan">👁️</button>
+                    </div>
+                </div>
+
+                <div class="form-row-inline">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe" />
+                        Ingat saya
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <span class="btn-text">Masuk</span>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+
+            <div class="divider">atau gunakan akun demo</div>
+
+            <!-- Demo accounts -->
+            <div class="demo-accounts">
+                <div class="demo-title">Akun Demo Tersedia</div>
+                <button class="demo-btn" onclick="fillDemo('admin','admin123')">
+                    <div class="demo-btn-info">
+                        <div class="demo-btn-name">Administrator</div>
+                        <div class="demo-btn-cred">admin / admin123</div>
+                    </div>
+                    <span class="demo-btn-role role-admin">Admin</span>
+                </button>
+                <button class="demo-btn" onclick="fillDemo('user1','user123')">
+                    <div class="demo-btn-info">
+                        <div class="demo-btn-name">Budi Santoso</div>
+                        <div class="demo-btn-cred">user1 / user123</div>
+                    </div>
+                    <span class="demo-btn-role role-user">User</span>
+                </button>
+                <button class="demo-btn" onclick="fillDemo('viewer','view123')">
+                    <div class="demo-btn-info">
+                        <div class="demo-btn-name">Siti Rahayu</div>
+                        <div class="demo-btn-cred">viewer / view123</div>
+                    </div>
+                    <span class="demo-btn-role role-viewer">Viewer</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="login-footer">
+            © 2026 AsetKu — Manajemen Aset Fisik &nbsp;|&nbsp; v1.0
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ===== User accounts (stored in localStorage) =====
+        const DEFAULT_USERS = [
+            { username: 'admin', password: 'admin123', name: 'Administrator', role: 'Admin', avatar: 'A' },
+            { username: 'user1', password: 'user123', name: 'Budi Santoso', role: 'User', avatar: 'B' },
+            { username: 'viewer', password: 'view123', name: 'Siti Rahayu', role: 'Viewer', avatar: 'S' },
+        ];
+
+        function getUsers() {
+            const stored = localStorage.getItem('asetku_users');
+            return stored ? JSON.parse(stored) : DEFAULT_USERS;
+        }
+
+        function initUsers() {
+            if (!localStorage.getItem('asetku_users')) {
+                localStorage.setItem('asetku_users', JSON.stringify(DEFAULT_USERS));
+            }
+        }
+
+        // ===== Check if already logged in =====
+        function checkSession() {
+            const session = localStorage.getItem('asetku_session');
+            if (session) {
+                try {
+                    const data = JSON.parse(session);
+                    if (data.expiry > Date.now()) {
+                        window.location.href = 'index.html';
+                        return;
+                    } else {
+                        localStorage.removeItem('asetku_session');
+                    }
+                } catch (e) {
+                    localStorage.removeItem('asetku_session');
+                }
+            }
+        }
+
+        // ===== Fill demo credentials =====
+        function fillDemo(user, pass) {
+            document.getElementById('username').value = user;
+            document.getElementById('password').value = pass;
+            document.getElementById('username').classList.remove('invalid');
+            document.getElementById('password').classList.remove('invalid');
+            hideError();
+        }
+
+        // ===== Show/Hide password =====
+        document.getElementById('togglePw').addEventListener('click', () => {
+            const inp = document.getElementById('password');
+            const btn = document.getElementById('togglePw');
+            if (inp.type === 'password') {
+                inp.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                inp.type = 'password';
+                btn.textContent = '👁️';
+            }
+        });
+
+        // ===== Error helpers =====
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            document.getElementById('errorText').textContent = msg;
+            el.classList.add('show');
+            // re-trigger animation
+            el.style.animation = 'none';
+            el.offsetHeight;
+            el.style.animation = '';
+        }
+        function hideError() {
+            document.getElementById('errorMsg').classList.remove('show');
+        }
+
+        // ===== Toast =====
+        let toastT;
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = `toast show ${type}`;
+            clearTimeout(toastT);
+            toastT = setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ===== Login =====
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            hideError();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('rememberMe').checked;
+
+            // Validate empty
+            let valid = true;
+            if (!username) { document.getElementById('username').classList.add('invalid'); valid = false; }
+            if (!password) { document.getElementById('password').classList.add('invalid'); valid = false; }
+            if (!valid) { showError('Username dan password wajib diisi.'); return; }
+
+            document.getElementById('username').classList.remove('invalid');
+            document.getElementById('password').classList.remove('invalid');
+
+            // Simulate loading
+            const btn = document.getElementById('loginBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            setTimeout(() => {
+                const users = getUsers();
+                const user = users.find(u => u.username === username && u.password === password);
+
+                btn.classList.remove('loading');
+                btn.disabled = false;
+
+                if (user) {
+                    // Create session
+                    const expiry = remember
+                        ? Date.now() + 7 * 24 * 60 * 60 * 1000   // 7 days
+                        : Date.now() + 8 * 60 * 60 * 1000;         // 8 hours
+
+                    const session = {
+                        username: user.username,
+                        name: user.name,
+                        role: user.role,
+                        avatar: user.avatar,
+                        expiry,
+                    };
+                    localStorage.setItem('asetku_session', JSON.stringify(session));
+
+                    showToast(`Selamat datang, ${user.name}! 👋`);
+                    setTimeout(() => { window.location.href = 'index.html'; }, 800);
+                } else {
+                    showError('Username atau password salah. Coba lagi.');
+                    document.getElementById('password').value = '';
+                    document.getElementById('password').focus();
+                }
+            }, 700);
+        });
+
+        // Remove invalid class on input
+        ['username', 'password'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                document.getElementById(id).classList.remove('invalid');
+                hideError();
+            });
+        });
+
+        // ===== INIT =====
+        initUsers();
+        checkSession();
+    </script>
+</body>
+
+</html>
