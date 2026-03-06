@@ -3,12 +3,12 @@
  * PWA offline support + caching
  */
 
-const CACHE_NAME = 'asetku-v1';
+const CACHE_NAME = 'asetku-v3';
 const STATIC_ASSETS = [
     './',
     './index.html',
-    './style.css',
-    './app.js',
+    './style.css?v=3',
+    './app.js?v=3',
     './firebase-config.js',
     './firebase-sync.js',
     './manifest.json',

@@ -335,10 +335,169 @@ function renderDashboard() {
         qaAdd.onclick = () => { navigate('assets'); setTimeout(openAddModal, 100); };
     }
 
+    renderInteractiveCategories();
     renderChartCategory();
     renderChartStatus();
     renderChartLocation();
     renderRecentTable();
+}
+
+function renderInteractiveCategories() {
+    const grid = document.getElementById('dash-category-grid');
+    if (!grid) return;
+
+    // Get asset inspections
+    const allInspeksi = getInspeksi ? getInspeksi() : [];
+    const latestInspeksi = {};
+    allInspeksi.forEach(r => {
+        if (!latestInspeksi[r.asetId] || new Date(r.tglInspeksi) > new Date(latestInspeksi[r.asetId].tglInspeksi)) {
+            latestInspeksi[r.asetId] = r;
+        }
+    });
+
+    // Icons map for some common categories
+    const iconMap = {
+        'Elektronik': '🔌',
+        'Furnitur': '🛋️',
+        'Kendaraan': '🚗',
+        'Mesin': '⚙️',
+        'Alat Tulis': '✏️',
+        'Peralatan IT': '💻',
+        'Peralatan Medis': '🩺'
+    };
+
+    grid.innerHTML = STATE.categories.map((cat, i) => {
+        // Find all assets in this category
+        const catAssets = STATE.assets.filter(a => a.kategori === cat);
+        const totalAset = catAssets.length;
+
+        // Condition count
+        const kondisi = { Baik: 0, Cukup: 0, Buruk: 0 };
+        catAssets.forEach(a => {
+            if (a.kondisi === 'Baik') kondisi.Baik++;
+            if (a.kondisi === 'Cukup') kondisi.Cukup++;
+            if (a.kondisi === 'Buruk') kondisi.Buruk++;
+        });
+
+        // Latest inspection in this category
+        let latestDate = null;
+        let latestInspektur = null;
+
+        catAssets.forEach(a => {
+            const insp = latestInspeksi[a.id];
+            if (insp && insp.status === 'Selesai') {
+                const inspDate = new Date(insp.tglInspeksi + 'T00:00:00');
+                if (!latestDate || inspDate > latestDate) {
+                    latestDate = inspDate;
+                    latestInspektur = insp.inspektur;
+                }
+            }
+        });
+
+        let dateStr = 'Belum Ada';
+        if (latestDate) {
+            dateStr = latestDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        const icon = iconMap[cat] || '📦';
+        const palette = COLORS[i % COLORS.length];
+
+        // Store data attribute for modal
+        const dataJson = esc(JSON.stringify({ cat, icon, total: totalAset, kondisi, dateStr, latestInspektur }));
+
+        return `
+        <div class="cat-card" onclick="openCategoryDetailDialog(this)" data-info="${dataJson}">
+            <div class="cat-card-header">
+                <div class="cat-icon" style="color: ${palette}">${icon}</div>
+                <div class="cat-count">${fmt(totalAset)}</div>
+            </div>
+            <div>
+                <div class="cat-title">${esc(cat)}</div>
+                <div class="cat-meta">
+                    <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent-green)"></span> ${fmt(kondisi.Baik)} Baik
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+
+    if (STATE.categories.length === 0) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;"><p>Belum ada kategori yang ditambahkan.</p></div>';
+    }
+}
+
+function openCategoryDetailDialog(el) {
+    const raw = el.getAttribute('data-info');
+    if (!raw) return;
+
+    // Unescape quotes manually due to simple esc() function used previously
+    const safeStr = raw.replace(/&quot;/g, '"');
+    let data;
+    try {
+        data = JSON.parse(safeStr);
+    } catch (e) {
+        console.error("Invalid category data format", safeStr);
+        return;
+    }
+
+    document.getElementById('cat-modal-title').textContent = 'Detail Kategori: ' + data.cat;
+    document.getElementById('cat-modal-icon').textContent = data.icon;
+    document.getElementById('cat-modal-subtitle').textContent = `Total Aset ${data.cat}`;
+    document.getElementById('cat-modal-count').textContent = fmt(data.total) + ' Unit';
+
+    // Conditions
+    document.getElementById('cat-modal-conditions').innerHTML = `
+        <div class="cat-cond-box">
+            <span class="cat-cond-val" style="color:var(--accent-green)">${fmt(data.kondisi.Baik)}</span>
+            <span class="cat-cond-label">Baik</span>
+        </div>
+        <div class="cat-cond-box">
+            <span class="cat-cond-val" style="color:var(--accent-yellow)">${fmt(data.kondisi.Cukup)}</span>
+            <span class="cat-cond-label">Cukup</span>
+        </div>
+        <div class="cat-cond-box">
+            <span class="cat-cond-val" style="color:var(--accent-red)">${fmt(data.kondisi.Buruk)}</span>
+            <span class="cat-cond-label">Buruk</span>
+        </div>
+    `;
+
+    // Inspection Breakdown
+    const inspHtml = data.dateStr !== 'Belum Ada' ?
+        `
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+             <div style="display:flex;align-items:center;gap:12px;">
+                 <span style="font-size:24px;">📅</span>
+                 <div>
+                     <div style="font-weight:600;font-size:14px;">${data.dateStr}</div>
+                     <div style="font-size:12px;color:var(--text-muted)">oleh ${esc(data.latestInspektur || 'Tim Inspeksi')}</div>
+                 </div>
+             </div>
+             <span class="badge badge-baik">Selesai</span>
+        </div>` :
+        `<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:8px 0;">Belum pernah dilakukan inspeksi untuk aset di kategori ini.</div>`;
+
+    document.getElementById('cat-modal-inspection').innerHTML = inspHtml;
+
+    // View All button hook
+    document.getElementById('catModalViewBtn').onclick = () => {
+        closeCategoryModal();
+        navigate('assets');
+        setTimeout(() => {
+            const fCat = document.getElementById('filter-category');
+            if (fCat) {
+                fCat.value = data.cat;
+                STATE.filters.category = data.cat;
+                STATE.assetPage = 1;
+                renderAssetsTable();
+            }
+        }, 150);
+    };
+
+    document.getElementById('categoryDetailModal').classList.add('open');
+}
+
+function closeCategoryModal() {
+    const modal = document.getElementById('categoryDetailModal');
+    if (modal) modal.classList.remove('open');
 }
 
 function renderChartCategory() {
@@ -2466,6 +2625,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('saveBtn').addEventListener('click', saveAsset);
     document.getElementById('assetModal').addEventListener('click', e => {
         if (e.target === e.currentTarget) closeAssetModal();
+    });
+
+    // Category Detail modal close
+    const catModalCloseBtn = document.getElementById('categoryModalClose');
+    if (catModalCloseBtn) catModalCloseBtn.addEventListener('click', closeCategoryModal);
+    const catModal = document.getElementById('categoryDetailModal');
+    if (catModal) catModal.addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeCategoryModal();
     });
 
     // Delete modal

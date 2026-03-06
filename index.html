@@ -17,7 +17,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.css?v=3" />
     <!-- Export libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -198,6 +198,17 @@
                         <span>Lokasi</span>
                     </button>
                 </div>
+            </div>
+
+            <!-- Interactive Category Dashboard -->
+            <div class="card dash-category-interactive">
+                <div class="card-header" style="border-bottom:none;padding-bottom:0">
+                    <h3 class="card-title">🗂️ Rekap Kategori Aset</h3>
+                    <div style="font-size:12px;color:var(--text-muted)">Klik kategori untuk melihat jumlah kondisi dan
+                        riwayat inspeksi</div>
+                </div>
+                <!-- This grid is dynamically populated by JS -->
+                <div class="category-grid" id="dash-category-grid"></div>
             </div>
 
             <!-- Condition Distribution Bar -->
@@ -681,6 +692,44 @@
 
     </div><!-- /.main-wrapper -->
 
+    <!-- ===== MODAL DETAIL KATEGORI ===== -->
+    <div class="modal-backdrop" id="categoryDetailModal">
+        <div class="modal modal-md">
+            <div class="modal-header">
+                <h2 class="modal-title" id="cat-modal-title">Detail Kategori</h2>
+                <button class="modal-close" id="categoryModalClose">✕</button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <div style="display:flex;gap:16px;align-items:center;margin-bottom:24px;">
+                    <div id="cat-modal-icon"
+                        style="font-size:40px;background:var(--bg-secondary);width:64px;height:64px;display:flex;align-items:center;justify-content:center;border-radius:12px;">
+                        🗂️</div>
+                    <div>
+                        <div id="cat-modal-subtitle" style="color:var(--text-muted);font-size:13px;margin-bottom:4px;">
+                            Total Aset</div>
+                        <div id="cat-modal-count"
+                            style="font-size:24px;font-weight:700;color:var(--text-primary);line-height:1;">0 Unit</div>
+                    </div>
+                </div>
+
+                <div class="detail-section-title">Breakdown Kondisi</div>
+                <div class="cat-condition-grid" id="cat-modal-conditions">
+                    <!-- Digenerate via JS -->
+                </div>
+
+                <div class="detail-section-title" style="margin-top:24px;">Inspeksi Terakhir</div>
+                <div id="cat-modal-inspection"
+                    style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:16px;">
+                    <!-- Digenerate via JS -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="catModalViewBtn" style="width:100%">Lihat Semua Aset Kategori
+                    Ini</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== MODAL RIWAYAT ===== -->
     <div class="modal-backdrop" id="historyModal">
         <div class="modal">
@@ -1019,7 +1068,7 @@
     <div class="toast" id="toast"></div>
 
 
-    <script src="app.js"></script>
+    <script src="app.js?v=3"></script>
     <script>
         // ── PWA Service Worker Registration ──
         if ('serviceWorker' in navigator) {
