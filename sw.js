@@ -7,8 +7,8 @@ const CACHE_NAME = 'asetku-v8';
 const STATIC_ASSETS = [
     './',
     './index.html',
-    './style.css?v=7',
-    './app.js?v=7',
+    './style.css?v=8',
+    './app.js?v=8',
     './firebase-config.js',
     './firebase-sync.js',
     './manifest.json',
