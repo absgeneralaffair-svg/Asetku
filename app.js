@@ -566,21 +566,21 @@ function openCategoryDetailDialog(el) {
     document.getElementById('cat-modal-subtitle').innerHTML = `Total Aset<br><span style="font-size:11px;color:var(--text-secondary);font-weight:normal;">Lokasi: ${esc(locs)}</span>`;
     document.getElementById('cat-modal-count').textContent = fmt(data.total) + ' Unit';
 
-    // Conditions
+    // Conditions (Make them clickable to filter)
     document.getElementById('cat-modal-conditions').innerHTML = `
-        <div class="cat-cond-box">
+        <div class="cat-cond-box" onclick="filterCategoryByCondition('${esc(data.cat)}', 'Baik')" style="cursor:pointer; transition:transform 0.1s; border:1px solid transparent;" onmouseover="this.style.borderColor='var(--accent-green)'; this.style.transform='scale(1.02)';" onmouseout="this.style.borderColor='transparent'; this.style.transform='none';">
             <span class="cat-cond-val" style="color:var(--accent-green)">${fmt(data.kondisi.Baik)}</span>
             <span class="cat-cond-label">Baik</span>
         </div>
-        <div class="cat-cond-box">
+        <div class="cat-cond-box" onclick="filterCategoryByCondition('${esc(data.cat)}', 'Perbaikan')" style="cursor:pointer; transition:transform 0.1s; border:1px solid transparent;" onmouseover="this.style.borderColor='var(--accent-yellow)'; this.style.transform='scale(1.02)';" onmouseout="this.style.borderColor='transparent'; this.style.transform='none';">
             <span class="cat-cond-val" style="color:var(--accent-yellow)">${fmt(data.kondisi.Perbaikan)}</span>
             <span class="cat-cond-label">Perbaikan</span>
         </div>
-        <div class="cat-cond-box">
+        <div class="cat-cond-box" onclick="filterCategoryByCondition('${esc(data.cat)}', 'Rusak')" style="cursor:pointer; transition:transform 0.1s; border:1px solid transparent;" onmouseover="this.style.borderColor='var(--accent-red)'; this.style.transform='scale(1.02)';" onmouseout="this.style.borderColor='transparent'; this.style.transform='none';">
             <span class="cat-cond-val" style="color:var(--accent-red)">${fmt(data.kondisi.Rusak)}</span>
             <span class="cat-cond-label">Rusak</span>
         </div>
-        <div class="cat-cond-box">
+        <div class="cat-cond-box" onclick="filterCategoryByCondition('${esc(data.cat)}', 'ditelusuri')" style="cursor:pointer; transition:transform 0.1s; border:1px solid transparent;" onmouseover="this.style.borderColor='var(--accent-purple)'; this.style.transform='scale(1.02)';" onmouseout="this.style.borderColor='transparent'; this.style.transform='none';">
             <span class="cat-cond-val" style="color:var(--accent-purple)">${fmt(data.kondisi.ditelusuri)}</span>
             <span class="cat-cond-label">Ditelusuri</span>
         </div>
@@ -626,6 +626,26 @@ function closeCategoryModal() {
     if (modal) modal.classList.remove('open');
 }
 
+function filterCategoryByCondition(category, condition) {
+    closeCategoryModal();
+    navigate('assets');
+    setTimeout(() => {
+        // Reset filters first
+        STATE.filters = { category: '', location: '', status: '', condition: '', search: '' };
+
+        const fCat = document.getElementById('filter-category');
+        if (fCat) fCat.value = category;
+        STATE.filters.category = category;
+
+        const fCond = document.getElementById('filter-condition');
+        if (fCond) fCond.value = condition;
+        STATE.filters.condition = condition;
+
+        STATE.assetPage = 1;
+        renderAssetsTable();
+    }, 150);
+}
+
 function openLocationDetailDialog(el) {
     const raw = el.getAttribute('data-info');
     if (!raw) return;
@@ -644,25 +664,7 @@ function openLocationDetailDialog(el) {
     document.getElementById('loc-modal-subtitle').textContent = `Total Aset ${data.loc}`;
     document.getElementById('loc-modal-count').textContent = fmt(data.total) + ' Unit';
 
-    // Conditions
-    document.getElementById('loc-modal-conditions').innerHTML = `
-        <div class="cat-cond-box">
-            <span class="cat-cond-val" style="color:var(--accent-green)">${fmt(data.kondisi.Baik)}</span>
-            <span class="cat-cond-label">Baik</span>
-        </div>
-        <div class="cat-cond-box">
-            <span class="cat-cond-val" style="color:var(--accent-yellow)">${fmt(data.kondisi.Perbaikan)}</span>
-            <span class="cat-cond-label">Perbaikan</span>
-        </div>
-        <div class="cat-cond-box">
-            <span class="cat-cond-val" style="color:var(--accent-red)">${fmt(data.kondisi.Rusak)}</span>
-            <span class="cat-cond-label">Rusak</span>
-        </div>
-        <div class="cat-cond-box">
-            <span class="cat-cond-val" style="color:var(--accent-purple)">${fmt(data.kondisi.ditelusuri)}</span>
-            <span class="cat-cond-label">Ditelusuri</span>
-        </div>
-    `;
+    // Removed Conditions breakdown from Location Modal.
 
     // Inspection Breakdown
     const inspHtml = data.dateStr !== 'Belum Ada' ?
@@ -1121,7 +1123,7 @@ function addCategory() {
     if (isViewer()) { showToast('Akses ditolak: akun Viewer tidak bisa menambah kategori', 'error'); return; }
     const input = document.getElementById('new-category-input');
     const val = input.value.trim();
-    if (!val) return;
+    if (!val) { showToast('Nama kategori tidak boleh kosong!', 'error'); return; }
     if (STATE.categories.includes(val)) { showToast('Kategori sudah ada!', 'error'); return; }
     STATE.categories.push(val);
     save(); renderCategories(); input.value = '';
@@ -1165,7 +1167,7 @@ function addLocation() {
     if (isViewer()) { showToast('Akses ditolak: akun Viewer tidak bisa menambah lokasi', 'error'); return; }
     const input = document.getElementById('new-location-input');
     const val = input.value.trim();
-    if (!val) return;
+    if (!val) { showToast('Nama lokasi tidak boleh kosong!', 'error'); return; }
     if (STATE.locations.includes(val)) { showToast('Lokasi sudah ada!', 'error'); return; }
     STATE.locations.push(val);
     save(); renderLocations(); input.value = '';
@@ -1985,8 +1987,12 @@ function renderHistoryPage() {
 function populateHistoryAsetSelect(selectedId = '') {
     const sel = document.getElementById('h-aset');
     if (!sel) return;
+
+    // Filter based on penanggung jawab (Person in Charge)
+    const sortedAssets = [...STATE.assets].sort((a, b) => (a.penanggungjawab || '').localeCompare(b.penanggungjawab || ''));
+
     sel.innerHTML = '<option value="">-- Pilih Aset --</option>' +
-        STATE.assets.map(a => `<option value="${esc(a.id)}" ${a.id === selectedId ? 'selected' : ''}>${esc(a.kode)} � ${esc(a.nama)}</option>`).join('');
+        sortedAssets.map(a => `<option value="${esc(a.id)}" ${a.id === selectedId ? 'selected' : ''}>${esc(a.penanggungjawab || 'Tanpa Penanggung Jawab')} - ${esc(a.nama)} (${esc(a.kode)})</option>`).join('');
 }
 
 let _editingHistoryId = null;
@@ -3075,14 +3081,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('printBtn').addEventListener('click', printAssets);
 
-    // Categories
-    document.getElementById('addCategoryBtn').addEventListener('click', addCategory);
+    // Categories (click handler already registered earlier)
     document.getElementById('new-category-input').addEventListener('keydown', e => {
         if (e.key === 'Enter') addCategory();
     });
 
-    // Locations
-    document.getElementById('addLocationBtn').addEventListener('click', addLocation);
+    // Locations (click handler already registered earlier)
     document.getElementById('new-location-input').addEventListener('keydown', e => {
         if (e.key === 'Enter') addLocation();
     });

@@ -732,21 +732,18 @@
                 <button class="modal-close" id="locationModalClose">✕</button>
             </div>
             <div class="modal-body" style="padding: 24px;">
-                <div style="display:flex;gap:16px;align-items:center;margin-bottom:24px;">
-                    <div id="loc-modal-icon"
-                        style="font-size:40px;background:var(--bg-secondary);width:64px;height:64px;display:flex;align-items:center;justify-content:center;border-radius:12px;">
-                        📍</div>
-                    <div>
-                        <div id="loc-modal-subtitle" style="color:var(--text-muted);font-size:13px;margin-bottom:4px;">
-                            Total Aset</div>
-                        <div id="loc-modal-count"
-                            style="font-size:24px;font-weight:700;color:var(--text-primary);line-height:1;">0 Unit</div>
+                <div style="cursor:pointer; transition:transform 0.1s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='none';" onclick="document.getElementById('locModalViewBtn').click()">
+                    <div style="display:flex;gap:16px;align-items:center;margin-bottom:24px;">
+                        <div id="loc-modal-icon"
+                            style="font-size:40px;background:var(--bg-secondary);width:64px;height:64px;display:flex;align-items:center;justify-content:center;border-radius:12px;">
+                            📍</div>
+                        <div>
+                            <div id="loc-modal-subtitle" style="color:var(--text-muted);font-size:13px;margin-bottom:4px;">
+                                Total Aset</div>
+                            <div id="loc-modal-count"
+                                style="font-size:24px;font-weight:700;color:var(--text-primary);line-height:1;">0 Unit</div>
+                        </div>
                     </div>
-                </div>
-
-                <div class="detail-section-title">Breakdown Kondisi</div>
-                <div class="cat-condition-grid" id="loc-modal-conditions">
-                    <!-- Digenerate via JS -->
                 </div>
 
                 <div class="detail-section-title" style="margin-top:24px;">Inspeksi Terakhir</div>
