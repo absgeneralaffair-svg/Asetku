@@ -139,6 +139,17 @@ function load() {
     const c = localStorage.getItem('asetku_categories');
     const l = localStorage.getItem('asetku_locations');
     STATE.assets = a ? JSON.parse(a) : seedAssets();
+
+    // Migration: Update legacy kondisi 'Cukup' to 'Perbaikan' and 'Buruk' to 'Rusak'
+    if (a) {
+        let modified = false;
+        STATE.assets.forEach(asset => {
+            if (asset.kondisi === 'Cukup') { asset.kondisi = 'Perbaikan'; modified = true; }
+            if (asset.kondisi === 'Buruk') { asset.kondisi = 'Rusak'; modified = true; }
+        });
+        if (modified) localStorage.setItem('asetku_assets', JSON.stringify(STATE.assets));
+    }
+
     STATE.categories = c ? JSON.parse(c) : ['Elektronik', 'Furnitur', 'Kendaraan', 'Mesin', 'Alat Tulis', 'Peralatan IT', 'Peralatan Medis'];
     STATE.locations = l ? JSON.parse(l) : ['Kantor Pusat', 'Gudang', 'Workshop', 'Ruang Server', 'Lobby', 'Lantai 2', 'Lantai 3'];
     if (!a) save();
@@ -147,6 +158,16 @@ function load() {
     const insp = localStorage.getItem('asetku_inspeksi');
     if (!insp) {
         localStorage.setItem('asetku_inspeksi', JSON.stringify(seedInspeksi()));
+    } else {
+        try {
+            let list = JSON.parse(insp);
+            let modified = false;
+            list.forEach(i => {
+                if (i.kondisiTemuan === 'Cukup') { i.kondisiTemuan = 'Perbaikan'; modified = true; }
+                if (i.kondisiTemuan === 'Buruk') { i.kondisiTemuan = 'Rusak'; modified = true; }
+            });
+            if (modified) localStorage.setItem('asetku_inspeksi', JSON.stringify(list));
+        } catch (e) { }
     }
 
     // Seed history on first load
@@ -164,14 +185,14 @@ function seedAssets() {
     const data = [
         { id: uid(), kode: 'AST-001', nama: 'Laptop Dell Latitude 5420', kategori: 'Peralatan IT', merek: 'Dell', serialNumber: 'DL-54201-XZ', tahun: 2022, lokasi: 'Kantor Pusat', penanggungjawab: 'Budi Santoso', jumlah: 3, satuan: 'unit', kondisi: 'Baik', status: 'Aktif', deskripsi: 'Laptop untuk staf administrasi', createdAt: Date.now() - 86400000 * 10 },
         { id: uid(), kode: 'AST-002', nama: 'Meja Kantor Besi', kategori: 'Furnitur', merek: 'Indoffice', serialNumber: '-', tahun: 2021, lokasi: 'Kantor Pusat', penanggungjawab: 'HR Dept', jumlah: 12, satuan: 'unit', kondisi: 'Baik', status: 'Aktif', deskripsi: 'Meja kerja standar', createdAt: Date.now() - 86400000 * 9 },
-        { id: uid(), kode: 'AST-003', nama: 'Proyektor Epson EB-X41', kategori: 'Elektronik', merek: 'Epson', serialNumber: 'EP-X41-09281', tahun: 2020, lokasi: 'Lantai 2', penanggungjawab: 'IT Dept', jumlah: 2, satuan: 'unit', kondisi: 'Cukup', status: 'Aktif', deskripsi: 'Proyektor ruang meeting', createdAt: Date.now() - 86400000 * 8 },
+        { id: uid(), kode: 'AST-003', nama: 'Proyektor Epson EB-X41', kategori: 'Elektronik', merek: 'Epson', serialNumber: 'EP-X41-09281', tahun: 2020, lokasi: 'Lantai 2', penanggungjawab: 'IT Dept', jumlah: 2, satuan: 'unit', kondisi: 'Perbaikan', status: 'Aktif', deskripsi: 'Proyektor ruang meeting', createdAt: Date.now() - 86400000 * 8 },
         { id: uid(), kode: 'AST-004', nama: 'Mobil Operasional Toyota Innova', kategori: 'Kendaraan', merek: 'Toyota', serialNumber: 'B 1234 XYZ', tahun: 2019, lokasi: 'Kantor Pusat', penanggungjawab: 'Sopir Utama', jumlah: 1, satuan: 'unit', kondisi: 'Baik', status: 'Aktif', deskripsi: 'Kendaraan operasional direksi', createdAt: Date.now() - 86400000 * 7 },
         { id: uid(), kode: 'AST-005', nama: 'Printer HP LaserJet Pro', kategori: 'Peralatan IT', merek: 'HP', serialNumber: 'HP-LJ-38849', tahun: 2021, lokasi: 'Kantor Pusat', penanggungjawab: 'IT Dept', jumlah: 4, satuan: 'unit', kondisi: 'Baik', status: 'Aktif', deskripsi: 'Printer jaringan kantor', createdAt: Date.now() - 86400000 * 6 },
-        { id: uid(), kode: 'AST-006', nama: 'Genset Perkins 10 KVA', kategori: 'Mesin', merek: 'Perkins', serialNumber: 'PK-10K-00291', tahun: 2018, lokasi: 'Workshop', penanggungjawab: 'Teknisi', jumlah: 1, satuan: 'unit', kondisi: 'Cukup', status: 'Pemeliharaan', deskripsi: 'Dalam jadwal service rutin', createdAt: Date.now() - 86400000 * 5 },
+        { id: uid(), kode: 'AST-006', nama: 'Genset Perkins 10 KVA', kategori: 'Mesin', merek: 'Perkins', serialNumber: 'PK-10K-00291', tahun: 2018, lokasi: 'Workshop', penanggungjawab: 'Teknisi', jumlah: 1, satuan: 'unit', kondisi: 'Perbaikan', status: 'Pemeliharaan', deskripsi: 'Dalam jadwal service rutin', createdAt: Date.now() - 86400000 * 5 },
         { id: uid(), kode: 'AST-007', nama: 'Kursi Ergonomis', kategori: 'Furnitur', merek: 'Hara', serialNumber: '-', tahun: 2022, lokasi: 'Lantai 3', penanggungjawab: 'HR Dept', jumlah: 20, satuan: 'unit', kondisi: 'Baik', status: 'Aktif', deskripsi: 'Kursi staf lantai 3', createdAt: Date.now() - 86400000 * 4 },
         { id: uid(), kode: 'AST-008', nama: 'UPS APC 1500VA', kategori: 'Peralatan IT', merek: 'APC', serialNumber: 'APC-1500-XJ2', tahun: 2020, lokasi: 'Ruang Server', penanggungjawab: 'IT Dept', jumlah: 3, satuan: 'unit', kondisi: 'Baik', status: 'Aktif', deskripsi: 'Backup power server', createdAt: Date.now() - 86400000 * 3 },
-        { id: uid(), kode: 'AST-009', nama: 'AC Split Daikin 1.5 PK', kategori: 'Elektronik', merek: 'Daikin', serialNumber: 'DK-15PK-9921', tahun: 2019, lokasi: 'Kantor Pusat', penanggungjawab: 'GA Dept', jumlah: 8, satuan: 'unit', kondisi: 'Cukup', status: 'Aktif', deskripsi: 'AC ruang kerja', createdAt: Date.now() - 86400000 * 2 },
-        { id: uid(), kode: 'AST-010', nama: 'Mesin Fotokopi Ricoh MP 2014', kategori: 'Elektronik', merek: 'Ricoh', serialNumber: 'RC-MP2014-4421', tahun: 2017, lokasi: 'Lantai 2', penanggungjawab: 'GA Dept', jumlah: 1, satuan: 'unit', kondisi: 'Buruk', status: 'Rusak', deskripsi: 'Perlu perbaikan drum unit', createdAt: Date.now() - 86400000 * 1 },
+        { id: uid(), kode: 'AST-009', nama: 'AC Split Daikin 1.5 PK', kategori: 'Elektronik', merek: 'Daikin', serialNumber: 'DK-15PK-9921', tahun: 2019, lokasi: 'Kantor Pusat', penanggungjawab: 'GA Dept', jumlah: 8, satuan: 'unit', kondisi: 'Perbaikan', status: 'Aktif', deskripsi: 'AC ruang kerja', createdAt: Date.now() - 86400000 * 2 },
+        { id: uid(), kode: 'AST-010', nama: 'Mesin Fotokopi Ricoh MP 2014', kategori: 'Elektronik', merek: 'Ricoh', serialNumber: 'RC-MP2014-4421', tahun: 2017, lokasi: 'Lantai 2', penanggungjawab: 'GA Dept', jumlah: 1, satuan: 'unit', kondisi: 'Rusak', status: 'Rusak', deskripsi: 'Perlu perbaikan drum unit', createdAt: Date.now() - 86400000 * 1 },
         { id: uid(), kode: 'AST-011', nama: 'Server Rack Dell PowerEdge', kategori: 'Peralatan IT', merek: 'Dell', serialNumber: 'DL-PE-8811A', tahun: 2021, lokasi: 'Ruang Server', penanggungjawab: 'IT Dept', jumlah: 2, satuan: 'unit', kondisi: 'Baik', status: 'Aktif', deskripsi: 'Server utama aplikasi', createdAt: Date.now() },
         { id: uid(), kode: 'AST-012', nama: 'Forklift Toyota 3T', kategori: 'Mesin', merek: 'Toyota', serialNumber: 'TY-3T-09921', tahun: 2020, lokasi: 'Gudang', penanggungjawab: 'Kepala Gudang', jumlah: 1, satuan: 'unit', kondisi: 'Baik', status: 'Aktif', deskripsi: 'Forklift untuk bongkar muat', createdAt: Date.now() },
         // AST-013 sengaja memiliki no. seri SAMA dengan AST-001 untuk demo fitur pengelompokan
@@ -310,9 +331,9 @@ function renderDashboard() {
     setBar('dash-bar-rusak', pct(rusak), 'var(--accent-red)');
 
     // Condition stacked bar
-    const kondisiCounts = { Baik: 0, Cukup: 0, Buruk: 0 };
+    const kondisiCounts = { Baik: 0, Perbaikan: 0, Rusak: 0 };
     all.forEach(a => { if (kondisiCounts[a.kondisi] !== undefined) kondisiCounts[a.kondisi]++; });
-    const kondisiColors = { Baik: 'var(--accent-green)', Cukup: 'var(--accent-yellow)', Buruk: 'var(--accent-red)' };
+    const kondisiColors = { Baik: 'var(--accent-green)', Perbaikan: 'var(--accent-yellow)', Rusak: 'var(--accent-red)' };
     const condBar = document.getElementById('dash-condition-bar');
     if (condBar && total > 0) {
         condBar.innerHTML = Object.entries(kondisiCounts).map(([k, v]) =>
@@ -336,6 +357,7 @@ function renderDashboard() {
     }
 
     renderInteractiveCategories();
+    renderInteractiveLocations();
     renderChartCategory();
     renderChartStatus();
     renderChartLocation();
@@ -372,11 +394,12 @@ function renderInteractiveCategories() {
         const totalAset = catAssets.length;
 
         // Condition count
-        const kondisi = { Baik: 0, Cukup: 0, Buruk: 0 };
+        const kondisi = { Baik: 0, Perbaikan: 0, Rusak: 0, ditelusuri: 0 };
         catAssets.forEach(a => {
             if (a.kondisi === 'Baik') kondisi.Baik++;
-            if (a.kondisi === 'Cukup') kondisi.Cukup++;
-            if (a.kondisi === 'Buruk') kondisi.Buruk++;
+            if (a.kondisi === 'Perbaikan') kondisi.Perbaikan++;
+            if (a.kondisi === 'Rusak') kondisi.Rusak++;
+            if (a.kondisi === 'ditelusuri') kondisi.ditelusuri++;
         });
 
         // Latest inspection in this category
@@ -402,18 +425,23 @@ function renderInteractiveCategories() {
         const icon = iconMap[cat] || '📦';
         const palette = COLORS[i % COLORS.length];
 
+        // Get location string
+        const locs = Array.from(new Set(catAssets.map(a => a.lokasi))).join(', ') || 'Belum ada aset';
+
         // Store data attribute for modal
         const dataJson = esc(JSON.stringify({ cat, icon, total: totalAset, kondisi, dateStr, latestInspektur }));
 
         return `
         <div class="cat-card" onclick="openCategoryDetailDialog(this)" data-info="${dataJson}">
-            <div class="cat-card-header">
-                <div class="cat-icon" style="color: ${palette}">${icon}</div>
-                <div class="cat-count">${fmt(totalAset)}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+                    <div class="cat-icon" style="color: ${palette}; margin:0; width:40px; height:40px; font-size:20px; flex-shrink:0;">${icon}</div>
+                    <div class="cat-title" style="margin:0; font-size:14px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${esc(cat)}">${esc(cat)}</div>
+                </div>
+                <div class="cat-count" style="font-size:22px; margin-left:8px;">${fmt(totalAset)}</div>
             </div>
             <div>
-                <div class="cat-title">${esc(cat)}</div>
-                <div class="cat-meta">
+                <div class="cat-meta" style="margin-top:0;">
                     <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent-green)"></span> ${fmt(kondisi.Baik)} Baik
                 </div>
             </div>
@@ -424,6 +452,96 @@ function renderInteractiveCategories() {
         grid.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;"><p>Belum ada kategori yang ditambahkan.</p></div>';
     }
 }
+
+function renderInteractiveLocations() {
+    const grid = document.getElementById('dash-location-grid');
+    if (!grid) return;
+
+    // Get asset inspections
+    const allInspeksi = getInspeksi ? getInspeksi() : [];
+    const latestInspeksi = {};
+    allInspeksi.forEach(r => {
+        if (!latestInspeksi[r.asetId] || new Date(r.tglInspeksi) > new Date(latestInspeksi[r.asetId].tglInspeksi)) {
+            latestInspeksi[r.asetId] = r;
+        }
+    });
+
+    const iconMap = {
+        'Kantor Pusat': '🏢',
+        'Gudang': '🏭',
+        'Workshop': '🛠️',
+        'Ruang Server': '🖥️',
+        'Lobby': '🛋️',
+        'Lantai 2': '🏢',
+        'Lantai 3': '🏢'
+    };
+
+    grid.innerHTML = STATE.locations.map((loc, i) => {
+        // Find all assets in this location
+        const locAssets = STATE.assets.filter(a => a.lokasi === loc);
+        const totalAset = locAssets.length;
+
+        // Condition count
+        const kondisi = { Baik: 0, Perbaikan: 0, Rusak: 0, ditelusuri: 0 };
+        locAssets.forEach(a => {
+            if (a.kondisi === 'Baik') kondisi.Baik++;
+            if (a.kondisi === 'Perbaikan') kondisi.Perbaikan++;
+            if (a.kondisi === 'Rusak') kondisi.Rusak++;
+            if (a.kondisi === 'ditelusuri') kondisi.ditelusuri++;
+        });
+
+        // Latest inspection in this location
+        let latestDate = null;
+        let latestInspektur = null;
+
+        locAssets.forEach(a => {
+            const insp = latestInspeksi[a.id];
+            if (insp && insp.status === 'Selesai') {
+                const inspDate = new Date(insp.tglInspeksi + 'T00:00:00');
+                if (!latestDate || inspDate > latestDate) {
+                    latestDate = inspDate;
+                    latestInspektur = insp.inspektur;
+                }
+            }
+        });
+
+        let dateStr = 'Belum Ada';
+        if (latestDate) {
+            dateStr = latestDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        const icon = iconMap[loc] || '📍';
+        const palette = COLORS[i % COLORS.length];
+
+        // Get category string
+        const cats = Array.from(new Set(locAssets.map(a => a.kategori))).join(', ') || 'Belum ada aset';
+
+        // Store data attribute for modal
+        const dataJson = esc(JSON.stringify({ loc, icon, total: totalAset, kondisi, dateStr, latestInspektur }));
+
+        return `
+        <div class="cat-card" onclick="openLocationDetailDialog(this)" data-info="${dataJson}">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+                    <div class="cat-icon" style="color: ${palette}; margin:0; width:40px; height:40px; font-size:20px; flex-shrink:0;">${icon}</div>
+                    <div class="cat-title" style="margin:0; font-size:14px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${esc(loc)}">${esc(loc)}</div>
+                </div>
+                <div class="cat-count" style="font-size:22px; margin-left:8px;">${fmt(totalAset)}</div>
+            </div>
+            <div>
+                <div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${esc(cats)}">🗂️ ${esc(cats)}</div>
+                <div class="cat-meta" style="margin-top:0;">
+                    <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent-green)"></span> ${fmt(kondisi.Baik)} Baik
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+
+    if (STATE.locations.length === 0) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;"><p>Belum ada lokasi yang ditambahkan.</p></div>';
+    }
+}
+
 
 function openCategoryDetailDialog(el) {
     const raw = el.getAttribute('data-info');
@@ -439,9 +557,13 @@ function openCategoryDetailDialog(el) {
         return;
     }
 
+    // Get locations for this category
+    const catAssets = STATE.assets.filter(a => a.kategori === data.cat);
+    const locs = Array.from(new Set(catAssets.map(a => a.lokasi))).join(', ') || '-';
+
     document.getElementById('cat-modal-title').textContent = 'Detail Kategori: ' + data.cat;
     document.getElementById('cat-modal-icon').textContent = data.icon;
-    document.getElementById('cat-modal-subtitle').textContent = `Total Aset ${data.cat}`;
+    document.getElementById('cat-modal-subtitle').innerHTML = `Total Aset<br><span style="font-size:11px;color:var(--text-secondary);font-weight:normal;">Lokasi: ${esc(locs)}</span>`;
     document.getElementById('cat-modal-count').textContent = fmt(data.total) + ' Unit';
 
     // Conditions
@@ -451,12 +573,16 @@ function openCategoryDetailDialog(el) {
             <span class="cat-cond-label">Baik</span>
         </div>
         <div class="cat-cond-box">
-            <span class="cat-cond-val" style="color:var(--accent-yellow)">${fmt(data.kondisi.Cukup)}</span>
-            <span class="cat-cond-label">Cukup</span>
+            <span class="cat-cond-val" style="color:var(--accent-yellow)">${fmt(data.kondisi.Perbaikan)}</span>
+            <span class="cat-cond-label">Perbaikan</span>
         </div>
         <div class="cat-cond-box">
-            <span class="cat-cond-val" style="color:var(--accent-red)">${fmt(data.kondisi.Buruk)}</span>
-            <span class="cat-cond-label">Buruk</span>
+            <span class="cat-cond-val" style="color:var(--accent-red)">${fmt(data.kondisi.Rusak)}</span>
+            <span class="cat-cond-label">Rusak</span>
+        </div>
+        <div class="cat-cond-box">
+            <span class="cat-cond-val" style="color:var(--accent-purple)">${fmt(data.kondisi.ditelusuri)}</span>
+            <span class="cat-cond-label">Ditelusuri</span>
         </div>
     `;
 
@@ -500,6 +626,84 @@ function closeCategoryModal() {
     if (modal) modal.classList.remove('open');
 }
 
+function openLocationDetailDialog(el) {
+    const raw = el.getAttribute('data-info');
+    if (!raw) return;
+
+    const safeStr = raw.replace(/&quot;/g, '"');
+    let data;
+    try {
+        data = JSON.parse(safeStr);
+    } catch (e) {
+        console.error("Invalid location data format", safeStr);
+        return;
+    }
+
+    document.getElementById('loc-modal-title').textContent = 'Detail Lokasi: ' + data.loc;
+    document.getElementById('loc-modal-icon').textContent = data.icon;
+    document.getElementById('loc-modal-subtitle').textContent = `Total Aset ${data.loc}`;
+    document.getElementById('loc-modal-count').textContent = fmt(data.total) + ' Unit';
+
+    // Conditions
+    document.getElementById('loc-modal-conditions').innerHTML = `
+        <div class="cat-cond-box">
+            <span class="cat-cond-val" style="color:var(--accent-green)">${fmt(data.kondisi.Baik)}</span>
+            <span class="cat-cond-label">Baik</span>
+        </div>
+        <div class="cat-cond-box">
+            <span class="cat-cond-val" style="color:var(--accent-yellow)">${fmt(data.kondisi.Perbaikan)}</span>
+            <span class="cat-cond-label">Perbaikan</span>
+        </div>
+        <div class="cat-cond-box">
+            <span class="cat-cond-val" style="color:var(--accent-red)">${fmt(data.kondisi.Rusak)}</span>
+            <span class="cat-cond-label">Rusak</span>
+        </div>
+        <div class="cat-cond-box">
+            <span class="cat-cond-val" style="color:var(--accent-purple)">${fmt(data.kondisi.ditelusuri)}</span>
+            <span class="cat-cond-label">Ditelusuri</span>
+        </div>
+    `;
+
+    // Inspection Breakdown
+    const inspHtml = data.dateStr !== 'Belum Ada' ?
+        `
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+             <div style="display:flex;align-items:center;gap:12px;">
+                 <span style="font-size:24px;">📅</span>
+                 <div>
+                     <div style="font-weight:600;font-size:14px;">${data.dateStr}</div>
+                     <div style="font-size:12px;color:var(--text-muted)">oleh ${esc(data.latestInspektur || 'Tim Inspeksi')}</div>
+                 </div>
+             </div>
+             <span class="badge badge-baik">Selesai</span>
+        </div>` :
+        `<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:8px 0;">Belum pernah dilakukan inspeksi untuk aset di lokasi ini.</div>`;
+
+    document.getElementById('loc-modal-inspection').innerHTML = inspHtml;
+
+    // View All button hook
+    document.getElementById('locModalViewBtn').onclick = () => {
+        closeLocationModal();
+        navigate('assets');
+        setTimeout(() => {
+            const fLoc = document.getElementById('filter-location');
+            if (fLoc) {
+                fLoc.value = data.loc;
+                STATE.filters.location = data.loc;
+                STATE.assetPage = 1;
+                renderAssetsTable();
+            }
+        }, 150);
+    };
+
+    document.getElementById('locationDetailModal').classList.add('open');
+}
+
+function closeLocationModal() {
+    const modal = document.getElementById('locationDetailModal');
+    if (modal) modal.classList.remove('open');
+}
+
 function renderChartCategory() {
     const counts = groupBy(STATE.assets, 'kategori');
     renderBarChart('chart-category', 'legend-category', counts);
@@ -526,7 +730,7 @@ function renderBarChart(containerId, legendId, counts, colors) {
     const maxH = 120;
 
     container.innerHTML = '';
-    legendEl.innerHTML = '';
+    if (legendEl) legendEl.innerHTML = '';
 
     if (entries.length === 0) {
         container.innerHTML = '<div class="empty-state" style="padding:20px"><p>Belum ada data</p></div>';
@@ -535,24 +739,32 @@ function renderBarChart(containerId, legendId, counts, colors) {
 
     entries.forEach(([key, val], i) => {
         const color = palette[i % palette.length];
+        const isVertical = container.classList.contains('vertical-chart');
+
+        // Use percentage width for horizontal layout, pixels for vertical layout
+        const pct = Math.max(2, Math.round((val / max) * 90)); // max 90%
         const h = Math.max(8, Math.round((val / max) * maxH));
+        const style = isVertical ? `width:${pct}%;height:14px;background:${color}` : `height:${h}px;background:${color}`;
+
         container.innerHTML += `
       <div class="bar-wrap">
         <div class="bar-value">${fmt(val)}</div>
-        <div class="bar" style="height:${h}px;background:${color}" title="${key}: ${fmt(val)}"></div>
+        <div class="bar" style="${style}" title="${key}: ${fmt(val)}"></div>
         <div class="bar-label" title="${key}">${key}</div>
       </div>`;
-        legendEl.innerHTML += `
-      <div class="legend-item">
-        <div class="legend-dot" style="background:${color}"></div>
-        <span>${key} (${fmt(val)})</span>
-      </div>`;
+        if (legendEl) {
+            legendEl.innerHTML += `
+        <div class="legend-item">
+            <div class="legend-dot" style="background:${color}"></div>
+            <span>${key} (${fmt(val)})</span>
+        </div>`;
+        }
     });
 }
 
 function renderRecentTable() {
     const tbody = document.getElementById('recent-table-body');
-    const recent = [...STATE.assets].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 8);
+    const recent = [...STATE.assets].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 4);
 
     if (recent.length === 0) {
         tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><p>Belum ada aset</p></div></td></tr>`;
@@ -570,6 +782,34 @@ function renderRecentTable() {
       <td>${badgeKondisi(a.kondisi)}</td>
       <td>${badgeStatus(a.status)}</td>
     </tr>`).join('');
+}
+
+// Navigasi cepat dari Dashboard Stat Cards
+function filterAssetsByStatus(status) {
+    navigate('assets');
+    setTimeout(() => {
+        // Reset filters first
+        STATE.filters = { category: '', location: '', status: '', condition: '', search: '' };
+
+        const fCat = document.getElementById('filter-category');
+        if (fCat) fCat.value = '';
+        const fLoc = document.getElementById('filter-location');
+        if (fLoc) fLoc.value = '';
+        const fCond = document.getElementById('filter-condition');
+        if (fCond) fCond.value = '';
+        const fSearch = document.getElementById('asset-search');
+        if (fSearch) fSearch.value = '';
+
+        // Set new status filter
+        const fStatus = document.getElementById('filter-status');
+        if (fStatus) {
+            fStatus.value = status;
+            STATE.filters.status = status;
+        }
+
+        STATE.assetPage = 1;
+        renderAssetsTable();
+    }, 150);
 }
 
 // ===========================
@@ -638,6 +878,12 @@ function ageBadge(tahun) {
 
 function renderAssetsTable() {
     populateFilterSelects();
+
+    const asInput = document.getElementById('asset-search');
+    const asClear = document.getElementById('assetSearchClear');
+    if (asInput) asInput.value = STATE.filters.search || '';
+    if (asClear) asClear.style.display = STATE.filters.search ? 'flex' : 'none';
+
     const filtered = getFilteredAssets();
     const total = filtered.length;
     const pages = Math.max(1, Math.ceil(total / STATE.assetsPerPage));
@@ -685,8 +931,8 @@ function renderAssetsTable() {
         <td style="text-align:center">${rBadge}</td>
         <td>
           <div style="display:flex;gap:4px">
-            <button class="btn-icon edit" onclick="event.stopPropagation();openEditModal('${a.id}')" title="Edit">??</button>
-            <button class="btn-icon delete" onclick="event.stopPropagation();openDeleteModal('${a.id}')" title="Hapus">???</button>
+            <button class="btn-icon edit" onclick="event.stopPropagation();openEditModal('${a.id}')" title="Edit">✏️</button>
+            <button class="btn-icon delete" onclick="event.stopPropagation();openDeleteModal('${a.id}')" title="Hapus">🗑️</button>
           </div>
         </td>
       </tr>`;
@@ -1297,7 +1543,7 @@ function badgeStatus(s) {
 }
 
 function badgeKondisi(k) {
-    const map = { 'Baik': 'badge-baik', 'Cukup': 'badge-cukup', 'Buruk': 'badge-buruk' };
+    const map = { 'Baik': 'badge-baik', 'Perbaikan': 'badge-perbaikan', 'Rusak': 'badge-rusak', 'ditelusuri': 'badge-ditelusuri' };
     return `<span class="badge ${map[k] || ''}">${esc(k)}</span>`;
 }
 
@@ -1687,13 +1933,24 @@ function renderHistoryPage() {
         const siblingBadge = isSibling
             ? `<span class="badge history-sibling-badge" title="Aset berbeda dengan no. seri sama">Terkait (SN = ${esc(groupSerialNumber)})</span>`
             : '';
+
+        // Find previous owner
+        const assetHistory = history.filter(record => record.asetId === h.asetId).sort((a, b) => new Date(a.tgl) - new Date(b.tgl));
+        const currentIndex = assetHistory.findIndex(record => record.id === h.id);
+        const computedPrevOwner = currentIndex > 0 ? assetHistory[currentIndex - 1].nama : '-';
+        const prevOwner = h.prevOwner || computedPrevOwner;
+
         return `<tr style="${rowStyle}">
           <td>
-            <code style="font-size:12px;color:var(--accent-blue)">${esc(aset?.kode || h.asetKode || '-')}</code>
+            <a href="javascript:void(0)" onclick="viewAssetHistory('${esc(h.asetId)}')" style="text-decoration:none;">
+              <code style="font-size:12px;color:var(--accent-blue)">${esc(aset?.kode || h.asetKode || '-')}</code>
+            </a>
             ${siblingBadge}
           </td>
           <td>
-            <strong>${esc(aset?.nama || h.asetNama || '-')}</strong>
+            <a href="javascript:void(0)" onclick="viewAssetHistory('${esc(h.asetId)}')" style="text-decoration:none;color:inherit;">
+              <strong>${esc(aset?.nama || h.asetNama || '-')}</strong>
+            </a>
             ${serialDisplay}
           </td>
           <td style="font-family:monospace;font-size:12px">${esc(h.nik || '-')}</td>
@@ -1701,15 +1958,20 @@ function renderHistoryPage() {
           <td style="color:var(--text-secondary)">${esc(h.jabatan || '-')}</td>
           <td style="color:var(--text-secondary)">${esc(h.departemen || '-')}</td>
           <td style="white-space:nowrap">${tglFmt}</td>
-          <td style="max-width:200px;font-size:12px;color:var(--text-muted)" title="${esc(h.keterangan || '')}">${esc(h.keterangan || '-')}</td>
+          <td>
+            <a href="javascript:void(0)" onclick="showHistoryDetail('${h.id}')" style="color:var(--accent-blue);text-decoration:none;font-size:13px;">
+              ${esc(prevOwner)}
+            </a>
+          </td>
+          <td style="max-width:200px;font-size:12px;color:var(--text-muted);cursor:pointer;" onclick="showHistoryDetail('${h.id}')" title="Klik untuk lihat detail lengkap">${esc(h.keterangan || '-')}</td>
           <td>
             <div style="display:flex;gap:4px">
-              <button class="btn-icon edit" onclick="openEditHistoryModal('${h.id}')" title="Edit">??</button>
-              <button class="btn-icon delete" onclick="deleteHistoryRecord('${h.id}')" title="Hapus">???</button>
+              <button class="btn-icon edit" onclick="openEditHistoryModal('${h.id}')" title="Edit">✏️</button>
+              <button class="btn-icon delete" onclick="deleteHistoryRecord('${h.id}')" title="Hapus">🗑️</button>
             </div>
           </td>
         </tr>`;
-    }).join('') || `<tr><td colspan="9"><div class="empty-state"><div class="empty-state-icon">??</div><p>Belum ada riwayat penerimaan aset.</p></div></td></tr>`;
+    }).join('') || `<tr><td colspan="10"><div class="empty-state"><div class="empty-state-icon">📁</div><p>Belum ada riwayat penerimaan aset.</p></div></td></tr>`;
 
     const info = document.getElementById('history-info');
     if (info) {
@@ -1739,6 +2001,7 @@ function openAddHistoryModal(presetAsetId = '') {
     document.getElementById('h-jabatan').value = '';
     document.getElementById('h-departemen').value = '';
     document.getElementById('h-tgl').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('h-prevOwner').value = '';
     document.getElementById('h-keterangan').value = '';
     document.getElementById('history-modal-title').textContent = 'Tambah Riwayat Penerimaan';
     document.getElementById('historyModal').classList.add('open');
@@ -1755,6 +2018,7 @@ function openEditHistoryModal(id) {
     document.getElementById('h-jabatan').value = rec.jabatan || '';
     document.getElementById('h-departemen').value = rec.departemen || '';
     document.getElementById('h-tgl').value = rec.tgl || '';
+    document.getElementById('h-prevOwner').value = rec.prevOwner || '';
     document.getElementById('h-keterangan').value = rec.keterangan || '';
     document.getElementById('history-modal-title').textContent = 'Edit Riwayat Penerimaan';
     document.getElementById('historyModal').classList.add('open');
@@ -1772,6 +2036,7 @@ function saveHistoryRecord() {
     const jabatan = document.getElementById('h-jabatan').value.trim();
     const departemen = document.getElementById('h-departemen').value.trim();
     const tgl = document.getElementById('h-tgl').value;
+    const prevOwner = document.getElementById('h-prevOwner').value.trim();
     const keterangan = document.getElementById('h-keterangan').value.trim();
 
     if (!asetId) { showToast('Pilih aset terlebih dahulu!', 'error'); return; }
@@ -1786,7 +2051,7 @@ function saveHistoryRecord() {
         asetId,
         asetKode: aset?.kode || '',
         asetNama: aset?.nama || '',
-        nik, nama, jabatan, departemen, tgl, keterangan,
+        nik, nama, jabatan, departemen, tgl, prevOwner, keterangan,
         createdAt: _editingHistoryId
             ? (history.find(h => h.id === _editingHistoryId)?.createdAt || Date.now())
             : Date.now()
@@ -1830,6 +2095,43 @@ function exportHistoryCSV() {
     showToast('Export CSV riwayat berhasil', 'success');
 }
 
+function viewAssetHistory(asetId) {
+    const sel = document.getElementById('history-filter-aset');
+    if (sel) {
+        sel.value = asetId;
+        renderHistoryPage();
+        showToast('Menampilkan riwayat aset terpilih', 'info');
+    }
+}
+
+function showHistoryDetail(id) {
+    const history = getHistory();
+    const h = history.find(record => record.id === id);
+    if (!h) return;
+
+    const aset = STATE.assets.find(a => a.id === h.asetId);
+    const assetHistory = history.filter(record => record.asetId === h.asetId).sort((a, b) => new Date(a.tgl) - new Date(b.tgl));
+    const currentIndex = assetHistory.findIndex(record => record.id === h.id);
+    const computedPrevOwner = currentIndex > 0 ? assetHistory[currentIndex - 1].nama : '-';
+    const prevOwner = h.prevOwner || computedPrevOwner;
+
+    const tglFmt = h.tgl ? new Date(h.tgl + 'T00:00:00').toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
+
+    document.getElementById('hd-aset-nama').textContent = aset?.nama || h.asetNama || '-';
+    document.getElementById('hd-aset-kode').textContent = aset?.kode || h.asetKode || '-';
+    document.getElementById('hd-penerima').textContent = h.nama || '-';
+    document.getElementById('hd-nik').textContent = h.nik ? `NIK: ${h.nik}` : '-';
+    document.getElementById('hd-prevOwner').textContent = prevOwner;
+    document.getElementById('hd-tgl').textContent = tglFmt;
+
+    const jabDept = [h.jabatan, h.departemen].filter(Boolean).join(' / ');
+    document.getElementById('hd-jabatan-dept').textContent = jabDept || '-';
+
+    document.getElementById('hd-keterangan').textContent = h.keterangan || 'Tidak ada keterangan.';
+
+    document.getElementById('historyDetailModal').classList.add('open');
+}
+
 // ===========================
 // EVENT LISTENERS
 // ===========================
@@ -1868,9 +2170,10 @@ function badgeKondisiInspeksi(kondisi) {
     if (!kondisi) return `<span style="color:var(--text-muted);font-size:12px">—</span>`;
     const map = {
         'Baik': 'badge-baik',
-        'Cukup': 'badge-cukup',
-        'Buruk': 'badge-buruk',
+        'Perbaikan': 'badge-perbaikan',
+        'Rusak': 'badge-rusak',
         'Perlu Tindakan': 'badge-perlu-tindakan',
+        'ditelusuri': 'badge-ditelusuri',
     };
     return `<span class="badge ${map[kondisi] || ''}">${kondisi}</span>`;
 }
@@ -1904,7 +2207,7 @@ function seedInspeksi() {
             if (isPast && (j === 0)) {
                 // Minggu 2 minggu lalu → Selesai
                 status = 'Selesai';
-                kondisi = ['Baik', 'Cukup', 'Baik', 'Perlu Tindakan', 'Baik', 'Buruk', 'Baik', 'Cukup'][i];
+                kondisi = ['Baik', 'Perbaikan', 'Baik', 'Perlu Tindakan', 'Baik', 'Rusak', 'Baik', 'Perbaikan'][i];
                 catatan = 'Inspeksi rutin mingguan selesai dilakukan.';
             } else if (isPast && j === 1) {
                 // Minggu lalu → Terlambat (belum dilakukan)
@@ -2070,7 +2373,8 @@ function renderInspeksiPage() {
                 </div>
               </td>
               <td style="text-align:center">${statusBadge}</td>
-              <td style="text-align:center">${kondisiInfo}${lastTgl ? `<div style="font-size:10px;color:var(--text-muted);margin-top:2px">${lastTgl} · ${lastInspektur || '\u2014'}</div>` : ''}</td>
+              <td style="text-align:center">${kondisiInfo}</td>
+              <td style="text-align:center">${lastTgl ? `<div style="font-size:11px;line-height:1.4">${lastTgl}<br/><span style="color:var(--text-muted)">${lastInspektur || '\u2014'}</span></div>` : '<span style="color:var(--text-muted)">\u2014</span>'}</td>
               <td style="max-width:180px;font-size:12px;color:var(--text-muted)" title="${esc(rec?.catatan || '')}">${rec?.catatan ? esc(rec.catatan) : '<span style="color:var(--text-muted)">\u2014</span>'}</td>
               <td>
                 <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
@@ -2084,9 +2388,17 @@ function renderInspeksiPage() {
               <td>
                 <div class="qk-group">
                   <button class="qk-btn qk-baik ${rec?.kondisiTemuan === 'Baik' && resolved === 'Selesai' ? 'qk-active' : ''}" onclick="quickInspeksi('${a.id}', 'Baik')" title="Kondisi Baik">\u2705 Baik</button>
-                  <button class="qk-btn qk-cukup ${rec?.kondisiTemuan === 'Cukup' && resolved === 'Selesai' ? 'qk-active' : ''}" onclick="quickInspeksi('${a.id}', 'Cukup')" title="Kondisi Cukup">\ud83d\udfe1 Cukup</button>
-                  <button class="qk-btn qk-buruk ${rec?.kondisiTemuan === 'Buruk' && resolved === 'Selesai' ? 'qk-active' : ''}" onclick="quickInspeksi('${a.id}', 'Buruk')" title="Kondisi Buruk">\ud83d\udfe0 Buruk</button>
+                  <button class="qk-btn qk-perbaikan ${rec?.kondisiTemuan === 'Perbaikan' && resolved === 'Selesai' ? 'qk-active' : ''}" onclick="quickInspeksi('${a.id}', 'Perbaikan')" title="Kondisi Perbaikan">\ud83d\udfe1 Perbaikan</button>
+                  <button class="qk-btn qk-rusak ${rec?.kondisiTemuan === 'Rusak' && resolved === 'Selesai' ? 'qk-active' : ''}" onclick="quickInspeksi('${a.id}', 'Rusak')" title="Kondisi Rusak">\ud83d\udfe0 Rusak</button>
                   <button class="qk-btn qk-tindakan ${rec?.kondisiTemuan === 'Perlu Tindakan' && resolved === 'Selesai' ? 'qk-active' : ''}" onclick="quickInspeksi('${a.id}', 'Perlu Tindakan')" title="Perlu Tindakan">\u26a0\ufe0f Tindakan</button>
+                  <button class="qk-btn qk-ditelusuri ${rec?.kondisiTemuan === 'ditelusuri' && resolved === 'Selesai' ? 'qk-active' : ''}" onclick="quickInspeksi('${a.id}', 'ditelusuri')" title="Ditelusuri">\ud83d\udd0d Ditelusuri</button>
+                </div>
+              </td>
+              <td style="white-space:nowrap">
+                <div style="display:flex;gap:4px;align-items:center;">
+                  ${rec ? `<button class="btn-icon edit" onclick="openEditInspeksiModal('${rec.id}')" title="Edit Terakhir">✏️</button>
+                           <button class="btn-icon delete" onclick="deleteInspeksiRecord('${rec.id}')" title="Hapus Terakhir">🗑️</button>` : ''}
+                  <button class="btn btn-outline-sm" onclick="openInspeksiHistory('${a.id}')" style="padding:4px 8px;font-size:11px;min-height:36px;border-radius:4px" title="Lihat semua riwayat inspeksi">📜 Riwayat</button>
                 </div>
               </td>
             </tr>`;
@@ -2111,8 +2423,11 @@ function renderInspeksiPage() {
                   <th>Aset</th>
                   <th style="text-align:center">Status Terakhir</th>
                   <th style="text-align:center">Kondisi Terakhir</th>
-                  <th>Tanggal &amp; Inspektur</th>
+                  <th style="text-align:center">Tgl &amp; Inspektur</th>
+                  <th>Keterangan</th>
+                  <th>Atur Inspeksi Baru</th>
                   <th>Kondisi Sekarang ⚡</th>
+                  <th>Aksi</th>
                 </tr>
               </thead>
               <tbody>${rows}</tbody>
@@ -2217,6 +2532,42 @@ function openEditInspeksiModal(id) {
 function closeInspeksiModal() {
     document.getElementById('inspeksiModal').classList.remove('open');
     _editingInspeksiId = null;
+}
+
+// ── Inspeksi History Modal ─────────────────────────────────
+function openInspeksiHistory(asetId) {
+    const aset = STATE.assets.find(a => a.id === asetId);
+    if (!aset) return;
+
+    document.getElementById('ih-aset-nama').textContent = aset.nama;
+    document.getElementById('ih-aset-kode').textContent = aset.kode + (aset.serialNumber !== '-' ? ` · SN: ${aset.serialNumber}` : '');
+
+    const historyData = getInspeksi()
+        .filter(r => r.asetId === asetId)
+        .sort((a, b) => new Date(b.tglInspeksi) - new Date(a.tglInspeksi));
+
+    const tbody = document.getElementById('inspeksi-history-tbody');
+    if (historyData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">\ud83d\udeab Belum ada riwayat inspeksi untuk aset ini.</td></tr>`;
+    } else {
+        tbody.innerHTML = historyData.map(r => {
+            const tgl = new Date(r.tglInspeksi + 'T00:00:00').toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            return `
+            <tr>
+                <td style="font-weight:600">${tgl}</td>
+                <td>${badgeKondisiInspeksi(r.kondisiTemuan || '\u2014')}</td>
+                <td>${esc(r.inspektur || '\u2014')}</td>
+                <td style="color:var(--text-secondary);font-size:12px;max-width:200px" title="${esc(r.catatan || '')}">${esc(r.catatan || '\u2014')}</td>
+                <td>${badgeInspeksiStatus(resolveInspeksiStatus(r))}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    document.getElementById('inspeksiHistoryModal').classList.add('open');
+}
+
+function closeInspeksiHistoryModal() {
+    document.getElementById('inspeksiHistoryModal').classList.remove('open');
 }
 
 function saveInspeksiRecord() {
@@ -2527,8 +2878,8 @@ function onQRDetected(code) {
           <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Kondisi sekarang:</div>
           <div class="qk-group">
             <button class="qk-btn qk-baik" onclick="qrInspeksi('${aset.id}','Baik')">✅ Baik</button>
-            <button class="qk-btn qk-cukup" onclick="qrInspeksi('${aset.id}','Cukup')">🟡 Cukup</button>
-            <button class="qk-btn qk-buruk" onclick="qrInspeksi('${aset.id}','Buruk')">🟠 Buruk</button>
+            <button class="qk-btn qk-perbaikan" onclick="qrInspeksi('${aset.id}','Perbaikan')">🟡 Perbaikan</button>
+            <button class="qk-btn qk-rusak" onclick="qrInspeksi('${aset.id}','Rusak')">🟠 Rusak</button>
             <button class="qk-btn qk-tindakan" onclick="qrInspeksi('${aset.id}','Perlu Tindakan')">⚠️ Tindakan</button>
           </div>
         </div>
@@ -2633,6 +2984,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const catModal = document.getElementById('categoryDetailModal');
     if (catModal) catModal.addEventListener('click', e => {
         if (e.target === e.currentTarget) closeCategoryModal();
+    });
+
+    // Location Detail modal close
+    const locModalCloseBtn = document.getElementById('locationModalClose');
+    if (locModalCloseBtn) locModalCloseBtn.addEventListener('click', closeLocationModal);
+    const locModal = document.getElementById('locationDetailModal');
+    if (locModal) locModal.addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeLocationModal();
     });
 
     // Delete modal
@@ -2740,6 +3099,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('historyCancelBtn')?.addEventListener('click', closeHistoryModal);
     document.getElementById('historySaveBtn')?.addEventListener('click', saveHistoryRecord);
     document.getElementById('historyModal')?.addEventListener('click', e => { if (e.target === e.currentTarget) closeHistoryModal(); });
+    document.getElementById('historyDetailModal')?.addEventListener('click', e => { if (e.target === e.currentTarget) document.getElementById('historyDetailModal').classList.remove('open'); });
     document.getElementById('history-filter-aset')?.addEventListener('change', renderHistoryPage);
     document.getElementById('history-search')?.addEventListener('input', renderHistoryPage);
     document.getElementById('exportHistoryCsvBtn')?.addEventListener('click', exportHistoryCSV);
@@ -2748,9 +3108,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // INSPEKSI ASET listeners
     document.getElementById('addInspeksiBtn')?.addEventListener('click', openAddInspeksiModal);
     document.getElementById('inspeksiModalClose')?.addEventListener('click', closeInspeksiModal);
+    document.getElementById('inspeksiHistoryModalClose')?.addEventListener('click', closeInspeksiHistoryModal);
     document.getElementById('inspeksiCancelBtn')?.addEventListener('click', closeInspeksiModal);
     document.getElementById('inspeksiSaveBtn')?.addEventListener('click', saveInspeksiRecord);
     document.getElementById('inspeksiModal')?.addEventListener('click', e => { if (e.target === e.currentTarget) closeInspeksiModal(); });
+    document.getElementById('inspeksiHistoryModal')?.addEventListener('click', e => { if (e.target === e.currentTarget) closeInspeksiHistoryModal(); });
     document.getElementById('inspeksi-filter-lokasi')?.addEventListener('change', renderInspeksiPage);
     document.getElementById('inspeksi-filter-status')?.addEventListener('change', renderInspeksiPage);
     document.getElementById('inspeksi-search')?.addEventListener('input', renderInspeksiPage);
@@ -2760,14 +3122,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const globalSearchClear = document.getElementById('globalSearchClear');
     if (globalSearchInput && globalSearchClear) {
         globalSearchInput.addEventListener('input', () => {
-            globalSearchClear.style.display = globalSearchInput.value ? 'block' : 'none';
+            globalSearchClear.style.display = globalSearchInput.value ? 'inline-block' : 'none';
         });
         globalSearchClear.addEventListener('click', () => {
             globalSearchInput.value = '';
             globalSearchClear.style.display = 'none';
             STATE.filters.search = '';
             STATE.assetPage = 1;
-            if (STATE.currentPage === 'assets') renderAssetsTable();
+            if (STATE.currentPage === 'assets') {
+                const asInput = document.getElementById('asset-search');
+                if (asInput) asInput.value = '';
+                document.getElementById('assetSearchClear').style.display = 'none';
+                renderAssetsTable();
+            }
+        });
+    }
+
+    // Daftar Aset specific search
+    const assetSearchInput = document.getElementById('asset-search');
+    const assetSearchClear = document.getElementById('assetSearchClear');
+    if (assetSearchInput && assetSearchClear) {
+        assetSearchInput.addEventListener('input', () => {
+            assetSearchClear.style.display = assetSearchInput.value ? 'inline-block' : 'none';
+            STATE.filters.search = assetSearchInput.value.trim();
+            STATE.assetPage = 1;
+            renderAssetsTable();
+        });
+        assetSearchClear.addEventListener('click', () => {
+            assetSearchInput.value = '';
+            assetSearchClear.style.display = 'none';
+            STATE.filters.search = '';
+            STATE.assetPage = 1;
+            if (globalSearchInput) globalSearchInput.value = '';
+            if (globalSearchClear) globalSearchClear.style.display = 'none';
+            renderAssetsTable();
         });
     }
 
@@ -2775,12 +3163,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const inspeksiSearchClear = document.getElementById('inspeksiSearchClear');
     if (inspeksiSearchInput && inspeksiSearchClear) {
         inspeksiSearchInput.addEventListener('input', () => {
-            inspeksiSearchClear.style.display = inspeksiSearchInput.value ? 'block' : 'none';
+            inspeksiSearchClear.style.display = inspeksiSearchInput.value ? 'inline-block' : 'none';
         });
         inspeksiSearchClear.addEventListener('click', () => {
             inspeksiSearchInput.value = '';
             inspeksiSearchClear.style.display = 'none';
             renderInspeksiPage();
+        });
+    }
+
+    const historySearchInput = document.getElementById('history-search');
+    const historySearchClear = document.getElementById('historySearchClear');
+    if (historySearchInput && historySearchClear) {
+        historySearchInput.addEventListener('input', () => {
+            historySearchClear.style.display = historySearchInput.value ? 'inline-block' : 'none';
+        });
+        historySearchClear.addEventListener('click', () => {
+            historySearchInput.value = '';
+            historySearchClear.style.display = 'none';
+            renderHistoryPage();
         });
     }
 

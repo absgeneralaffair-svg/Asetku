@@ -17,7 +17,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=3" />
+    <link rel="stylesheet" href="style.css?v=7" />
     <!-- Export libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -25,10 +25,10 @@
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <!-- Firebase (Cloud Real-Time Sync) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="firebase-sync.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script defer src="firebase-config.js"></script>
+    <script defer src="firebase-sync.js"></script>
 </head>
 
 <body>
@@ -99,9 +99,10 @@
                 <div class="search-box">
                     <span class="search-icon">🔍</span>
                     <input type="text" id="globalSearch" placeholder="Cari aset..." />
-                    <button class="search-clear-btn" id="globalSearchClear" title="Hapus pencarian"
-                        style="display:none">✕</button>
                 </div>
+                <button class="btn btn-outline-sm" id="globalSearchClear" title="Hapus pencarian"
+                    style="display:none; border-color:var(--accent-red); color:var(--accent-red); margin-left:-8px;">Hapus
+                    Pencarian</button>
                 <button class="btn btn-primary" id="addAssetBtn">
                     <span>＋</span> Tambah Aset
                 </button>
@@ -109,182 +110,168 @@
         </header>
 
         <!-- PAGE: DASHBOARD -->
-        <main class="page" id="page-dashboard">
+        <main class="page dash-page-compact" id="page-dashboard">
 
-            <!-- Hero Banner -->
-            <div class="dash-hero">
-                <div class="dash-hero-left">
-                    <div class="dash-greeting" id="dash-greeting">Selamat Datang 👋</div>
-                    <div class="dash-user-name" id="dash-user-name">Administrator</div>
-                    <div class="dash-date" id="dash-date"></div>
-                </div>
-                <div class="dash-hero-right">
-                    <div class="dash-summary-pill">
-                        <span class="dash-summary-dot aktif"></span>
-                        <span id="dash-hero-summary">Memuat data...</span>
+            <!-- LEFT COLUMN (Hero, Actions, Condition Bar) -->
+            <div class="dash-col dash-col-left">
+                <!-- Hero Banner -->
+                <div class="dash-hero">
+                    <div class="dash-hero-left">
+                        <div class="dash-greeting" id="dash-greeting">Selamat Datang 👋</div>
+                        <div class="dash-user-name" id="dash-user-name">Administrator</div>
+                        <div class="dash-date" id="dash-date"></div>
                     </div>
                 </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="qa-label">Aksi Cepat</div>
+                    <div class="qa-buttons">
+                        <button class="qa-btn" data-page="assets" id="qa-add-aset">
+                            <span class="qa-icon">➕</span>
+                            <span>Aset Baru</span>
+                        </button>
+                        <button class="qa-btn" data-page="reports">
+                            <span class="qa-icon">📊</span>
+                            <span>Laporan</span>
+                        </button>
+                        <button class="qa-btn" data-page="history">
+                            <span class="qa-icon">📜</span>
+                            <span>Riwayat</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Condition Distribution Bar -->
+                <div class="card dash-condition-card" style="margin-bottom: 0;">
+                    <div class="card-header" style="padding: 10px 14px;">
+                        <span class="card-title" style="font-size: 13px;">📈 Kondisi Aset</span>
+                        <span class="dash-condition-legend" id="dash-cond-legend"
+                            style="margin-left:auto;font-size:10px;"></span>
+                    </div>
+                    <div style="padding:10px 14px">
+                        <div class="stacked-bar-track" id="dash-condition-bar" style="height:12px"></div>
+                    </div>
+                </div>
+
             </div>
 
-            <!-- Stat Cards -->
-            <div class="stats-grid">
-                <div class="stat-card card-blue">
-                    <div class="stat-card-glow blue-glow"></div>
-                    <div class="stat-icon-wrap blue-icon">📦</div>
-                    <div class="stat-info">
-                        <div class="stat-value" id="stat-total">0</div>
-                        <div class="stat-label">Total Aset Terdaftar</div>
+            <!-- MIDDLE COLUMN (Stats & Interactive Grids) -->
+            <div class="dash-col dash-col-mid">
+                <!-- Stat Cards -->
+                <div class="stats-grid-compact">
+                    <div class="stat-card card-blue" style="padding: 12px; gap: 8px; cursor: pointer;"
+                        onclick="filterAssetsByStatus('')" title="Lihat semua aset">
+                        <div class="stat-info">
+                            <div class="stat-value" id="stat-total" style="font-size: 24px;">0</div>
+                            <div class="stat-label" style="font-size: 11px;">Total Aset</div>
+                        </div>
                     </div>
-                    <div class="stat-pulse blue-pulse"></div>
-                </div>
-                <div class="stat-card card-green">
-                    <div class="stat-card-glow green-glow"></div>
-                    <div class="stat-icon-wrap green-icon">✅</div>
-                    <div class="stat-info">
-                        <div class="stat-value" id="stat-aktif">0</div>
-                        <div class="stat-label">Aset Aktif & Beroperasi</div>
+                    <div class="stat-card card-green" style="padding: 12px; gap: 8px; cursor: pointer;"
+                        onclick="filterAssetsByStatus('Aktif')" title="Lihat aset aktif">
+                        <div class="stat-info">
+                            <div class="stat-value" id="stat-aktif" style="font-size: 24px;">0</div>
+                            <div class="stat-label" style="font-size: 11px;">Aktif</div>
+                        </div>
                     </div>
-                    <div class="stat-bar-mini" id="dash-bar-aktif"></div>
-                    <div class="stat-pulse green-pulse"></div>
-                </div>
-                <div class="stat-card card-yellow">
-                    <div class="stat-card-glow yellow-glow"></div>
-                    <div class="stat-icon-wrap yellow-icon">🔧</div>
-                    <div class="stat-info">
-                        <div class="stat-value" id="stat-pemeliharaan">0</div>
-                        <div class="stat-label">Dalam Pemeliharaan</div>
+                    <div class="stat-card card-yellow" style="padding: 12px; gap: 8px; cursor: pointer;"
+                        onclick="filterAssetsByStatus('Pemeliharaan')" title="Lihat aset dlm perbaikan">
+                        <div class="stat-info">
+                            <div class="stat-value" id="stat-pemeliharaan" style="font-size: 24px;">0</div>
+                            <div class="stat-label" style="font-size: 11px;">Perbaikan</div>
+                        </div>
                     </div>
-                    <div class="stat-bar-mini" id="dash-bar-pemeliharaan"></div>
-                    <div class="stat-pulse yellow-pulse"></div>
-                </div>
-                <div class="stat-card card-red">
-                    <div class="stat-card-glow red-glow"></div>
-                    <div class="stat-icon-wrap red-icon">⚠️</div>
-                    <div class="stat-info">
-                        <div class="stat-value" id="stat-rusak">0</div>
-                        <div class="stat-label">Rusak / Nonaktif</div>
+                    <div class="stat-card card-red" style="padding: 12px; gap: 8px; cursor: pointer;"
+                        onclick="filterAssetsByStatus('Rusak')" title="Lihat aset rusak">
+                        <div class="stat-info">
+                            <div class="stat-value" id="stat-rusak" style="font-size: 24px;">0</div>
+                            <div class="stat-label" style="font-size: 11px;">Rusak</div>
+                        </div>
                     </div>
-                    <div class="stat-bar-mini" id="dash-bar-rusak"></div>
-                    <div class="stat-pulse red-pulse"></div>
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="quick-actions">
-                <div class="qa-label">Aksi Cepat</div>
-                <div class="qa-buttons">
-                    <button class="qa-btn" data-page="assets" id="qa-add-aset">
-                        <span class="qa-icon">➕</span>
-                        <span>Tambah Aset</span>
-                    </button>
-                    <button class="qa-btn" data-page="assets">
-                        <span class="qa-icon">📋</span>
-                        <span>Daftar Aset</span>
-                    </button>
-                    <button class="qa-btn" data-page="history">
-                        <span class="qa-icon">📜</span>
-                        <span>Riwayat</span>
-                    </button>
-                    <button class="qa-btn" data-page="reports">
-                        <span class="qa-icon">📊</span>
-                        <span>Laporan</span>
-                    </button>
-                    <button class="qa-btn" data-page="categories">
-                        <span class="qa-icon">🗂️</span>
-                        <span>Kategori</span>
-                    </button>
-                    <button class="qa-btn" data-page="locations">
-                        <span class="qa-icon">📍</span>
-                        <span>Lokasi</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Interactive Category Dashboard -->
-            <div class="card dash-category-interactive">
-                <div class="card-header" style="border-bottom:none;padding-bottom:0">
-                    <h3 class="card-title">🗂️ Rekap Kategori Aset</h3>
-                    <div style="font-size:12px;color:var(--text-muted)">Klik kategori untuk melihat jumlah kondisi dan
-                        riwayat inspeksi</div>
-                </div>
-                <!-- This grid is dynamically populated by JS -->
-                <div class="category-grid" id="dash-category-grid"></div>
-            </div>
-
-            <!-- Condition Distribution Bar -->
-            <div class="card dash-condition-card">
-                <div class="card-header">
-                    <h3 class="card-title">📈 Distribusi Kondisi Aset</h3>
-                    <span class="dash-condition-legend" id="dash-cond-legend"></span>
-                </div>
-                <div style="padding:12px 20px 18px">
-                    <div class="stacked-bar-track" id="dash-condition-bar" style="height:24px"></div>
-                </div>
-            </div>
-
-            <!-- Charts row -->
-            <div class="charts-row">
-                <!-- By Category -->
-                <div class="card chart-card">
-                    <div class="card-header">
-                        <h3 class="card-title">🗂️ Kategori</h3>
-                    </div>
-                    <div class="chart-container" id="chart-category"></div>
-                    <div class="chart-legend" id="legend-category"></div>
                 </div>
 
-                <!-- By Status -->
-                <div class="card chart-card">
-                    <div class="card-header">
-                        <h3 class="card-title">🔵 Status Aset</h3>
+                <!-- Interactive Category & Location Row -->
+                <div class="dash-interactive-row">
+                    <!-- Category -->
+                    <div class="card dash-interactive-card" style="margin-bottom: 0;">
+                        <div class="card-header" style="padding: 10px 14px; border-bottom: none;">
+                            <span class="card-title" style="font-size: 13px;">🗂️ Kategori</span>
+                        </div>
+                        <div class="category-grid grid-compact" id="dash-category-grid"
+                            style="padding: 0 14px 14px; grid-template-columns: repeat(2, 1fr); gap: 10px;"></div>
                     </div>
-                    <div class="chart-container" id="chart-status"></div>
-                    <div class="chart-legend" id="legend-status"></div>
+
+                    <!-- Location -->
+                    <div class="card dash-interactive-card" style="margin-bottom: 0;">
+                        <div class="card-header" style="padding: 10px 14px; border-bottom: none;">
+                            <span class="card-title" style="font-size: 13px;">📍 Lokasi</span>
+                        </div>
+                        <div class="category-grid grid-compact" id="dash-location-grid"
+                            style="padding: 0 14px 14px; grid-template-columns: repeat(2, 1fr); gap: 10px;"></div>
+                    </div>
                 </div>
 
-                <!-- By Location -->
-                <div class="card chart-card">
-                    <div class="card-header">
-                        <h3 class="card-title">📍 Lokasi</h3>
+                <!-- BOTTOM ROW (Charts & Recent Assets) -->
+                <div class="dash-bottom-row"
+                    style="display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 10px; flex: 1; min-height: 0;">
+                    <!-- By Category -->
+                    <div class="card chart-card" style="margin-bottom: 0; display: flex; flex-direction: column;">
+                        <div class="card-header" style="padding: 10px 14px;">
+                            <span class="card-title" style="font-size: 13px;">🗂️ Kategori</span>
+                        </div>
+                        <div class="chart-container compact-chart vertical-chart" id="chart-category"
+                            style="flex: 1; min-height: 0; padding: 10px;"></div>
                     </div>
-                    <div class="chart-container" id="chart-location"></div>
-                    <div class="chart-legend" id="legend-location"></div>
-                </div>
-            </div>
 
-            <!-- Recent Assets -->
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">🕒 Aset Terbaru Ditambahkan</h3>
-                    <button class="btn btn-outline-sm" data-page="assets">Lihat Semua →</button>
-                </div>
-                <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Kode Aset</th>
-                                <th>Nama Aset</th>
-                                <th>Kategori</th>
-                                <th>Lokasi</th>
-                                <th>Jml</th>
-                                <th>Kondisi</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recent-table-body"></tbody>
-                    </table>
+                    <!-- By Status -->
+                    <div class="card chart-card" style="margin-bottom: 0; display: flex; flex-direction: column;">
+                        <div class="card-header" style="padding: 10px 14px;">
+                            <span class="card-title" style="font-size: 13px;">📈 Status</span>
+                        </div>
+                        <div class="chart-container compact-chart vertical-chart" id="chart-status"
+                            style="flex: 1; min-height: 0; padding: 10px;"></div>
+                    </div>
+
+                    <!-- Recent Assets -->
+                    <div class="card dash-recent-card" style="margin-bottom: 0;">
+                        <div class="card-header" style="padding: 10px 14px;">
+                            <span class="card-title" style="font-size: 13px;">🕒 Terbaru</span>
+                            <button class="btn btn-outline-sm" data-page="assets"
+                                style="font-size: 10px; padding: 2px 6px;">Semua</button>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="data-table dash-recent-table" style="font-size: 11px;">
+                                <thead>
+                                    <tr>
+                                        <th style="padding: 6px 10px;">Kode</th>
+                                        <th style="padding: 6px 10px;">Nama</th>
+                                        <th style="padding: 6px 10px;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
         </main>
-
         <!-- PAGE: DAFTAR ASET -->
         <main class="page hidden" id="page-assets">
             <div class="card">
                 <!-- Toolbar -->
                 <div class="toolbar">
                     <div class="toolbar-left">
+                        <div class="filter-group">
+                            <label>Cari Aset</label>
+                            <div class="search-input-wrap" style="display:flex; align-items:center; gap:8px;">
+                                <input type="text" id="asset-search" placeholder="Nama / Kode aset..."
+                                    style="padding:6px 10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;outline:none;width:180px;" />
+                                <button class="btn btn-outline-sm" id="assetSearchClear" title="Hapus pencarian"
+                                    style="display:none; border-color:var(--accent-red); color:var(--accent-red);">Hapus
+                                    Pencarian</button>
+                            </div>
+                        </div>
                         <div class="filter-group">
                             <label>Kategori</label>
                             <select id="filter-category">
@@ -312,8 +299,8 @@
                             <select id="filter-condition">
                                 <option value="">Semua</option>
                                 <option value="Baik">Baik</option>
-                                <option value="Cukup">Cukup</option>
-                                <option value="Buruk">Buruk</option>
+                                <option value="Perbaikan">Perbaikan</option>
+                                <option value="Rusak">Rusak</option>
                             </select>
                         </div>
                     </div>
@@ -589,11 +576,12 @@
                         </div>
                         <div class="filter-group">
                             <label>Cari Aset</label>
-                            <div class="search-input-wrap">
+                            <div class="search-input-wrap" style="display:flex; align-items:center; gap:8px;">
                                 <input type="text" id="inspeksi-search" placeholder="Nama / Kode aset..."
                                     style="padding:6px 10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;outline:none;width:180px" />
-                                <button class="search-clear-btn" id="inspeksiSearchClear" title="Hapus pencarian"
-                                    style="display:none">✕</button>
+                                <button class="btn btn-outline-sm" id="inspeksiSearchClear" title="Hapus pencarian"
+                                    style="display:none; border-color:var(--accent-red); color:var(--accent-red);">Hapus
+                                    Pencarian</button>
                             </div>
                         </div>
                     </div>
@@ -651,11 +639,16 @@
                         </div>
                         <div class="filter-group">
                             <label>Cari Riwayat</label>
-                            <input type="text" id="history-search"
-                                placeholder="Nama · NIK · No. Seri · Tanggal (cth: 2024-01)..."
-                                style="padding:6px 10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;outline:none;width:300px;transition:border-color .2s"
-                                onfocus="this.style.borderColor='var(--accent-blue)'"
-                                onblur="this.style.borderColor='var(--border)'" />
+                            <div class="search-input-wrap" style="display:flex; align-items:center; gap:8px;">
+                                <input type="text" id="history-search"
+                                    placeholder="Nama · NIK · No. Seri · Tanggal (cth: 2024-01)..."
+                                    style="padding:6px 10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;outline:none;width:300px;transition:border-color .2s"
+                                    onfocus="this.style.borderColor='var(--accent-blue)'"
+                                    onblur="this.style.borderColor='var(--border)'" />
+                                <button class="btn btn-outline-sm" id="historySearchClear" title="Hapus pencarian"
+                                    style="display:none; border-color:var(--accent-red); color:var(--accent-red);">Hapus
+                                    Pencarian</button>
+                            </div>
                         </div>
                     </div>
                     <div class="toolbar-right">
@@ -677,6 +670,7 @@
                                 <th>Jabatan</th>
                                 <th>Departemen</th>
                                 <th>Tgl Diterima</th>
+                                <th>Pemegang Sebelumnya</th>
                                 <th>Keterangan</th>
                                 <th>Aksi</th>
                             </tr>
@@ -730,6 +724,44 @@
         </div>
     </div>
 
+    <!-- ===== MODAL DETAIL LOKASI ===== -->
+    <div class="modal-backdrop" id="locationDetailModal">
+        <div class="modal modal-md">
+            <div class="modal-header">
+                <h2 class="modal-title" id="loc-modal-title">Detail Lokasi</h2>
+                <button class="modal-close" id="locationModalClose">✕</button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <div style="display:flex;gap:16px;align-items:center;margin-bottom:24px;">
+                    <div id="loc-modal-icon"
+                        style="font-size:40px;background:var(--bg-secondary);width:64px;height:64px;display:flex;align-items:center;justify-content:center;border-radius:12px;">
+                        📍</div>
+                    <div>
+                        <div id="loc-modal-subtitle" style="color:var(--text-muted);font-size:13px;margin-bottom:4px;">
+                            Total Aset</div>
+                        <div id="loc-modal-count"
+                            style="font-size:24px;font-weight:700;color:var(--text-primary);line-height:1;">0 Unit</div>
+                    </div>
+                </div>
+
+                <div class="detail-section-title">Breakdown Kondisi</div>
+                <div class="cat-condition-grid" id="loc-modal-conditions">
+                    <!-- Digenerate via JS -->
+                </div>
+
+                <div class="detail-section-title" style="margin-top:24px;">Inspeksi Terakhir</div>
+                <div id="loc-modal-inspection"
+                    style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:16px;">
+                    <!-- Digenerate via JS -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="locModalViewBtn" style="width:100%">Lihat Semua Aset Lokasi
+                    Ini</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== MODAL RIWAYAT ===== -->
     <div class="modal-backdrop" id="historyModal">
         <div class="modal">
@@ -769,6 +801,10 @@
                             <label for="h-tgl">Tgl Diterima <span class="required">*</span></label>
                             <input type="date" id="h-tgl" />
                         </div>
+                        <div class="form-group">
+                            <label for="h-prevOwner">Pemegang Sebelumnya</label>
+                            <input type="text" id="h-prevOwner" placeholder="Nama pemegang sebelumnya (opsional)" />
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="h-keterangan">Keterangan</label>
@@ -784,6 +820,59 @@
         </div>
     </div>
 
+    <!-- ===== MODAL DETAIL RIWAYAT ===== -->
+    <div class="modal-backdrop" id="historyDetailModal">
+        <div class="modal modal-md">
+            <div class="modal-header">
+                <h2 class="modal-title">Detail Riwayat Aset</h2>
+                <button class="modal-close"
+                    onclick="document.getElementById('historyDetailModal').classList.remove('open')">✕</button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <div
+                    style="display:flex;align-items:center;gap:12px;margin-bottom:20px;background:var(--bg-secondary);padding:16px;border-radius:8px;border:1px solid var(--border)">
+                    <div style="font-size:32px">📄</div>
+                    <div>
+                        <div id="hd-aset-nama" style="font-weight:700;font-size:16px;color:var(--text-primary)">-</div>
+                        <div id="hd-aset-kode" style="font-size:13px;color:var(--accent-blue);font-family:monospace">-
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+                    <div>
+                        <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Penerima</div>
+                        <div id="hd-penerima" style="font-weight:600;font-size:14px;color:var(--text-primary)">-</div>
+                        <div id="hd-nik" style="font-size:12px;color:var(--text-secondary);font-family:monospace">-
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Pemegang Sebelumnya</div>
+                        <div id="hd-prevOwner" style="font-weight:600;font-size:14px;color:var(--text-primary)">-</div>
+                    </div>
+                    <div>
+                        <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Tgl Diterima</div>
+                        <div id="hd-tgl" style="font-size:14px;color:var(--text-primary)">-</div>
+                    </div>
+                    <div>
+                        <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Jabatan / Departemen</div>
+                        <div id="hd-jabatan-dept" style="font-size:14px;color:var(--text-primary)">-</div>
+                    </div>
+                </div>
+
+                <div class="detail-section-title">Keterangan Lengkap</div>
+                <div id="hd-keterangan"
+                    style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:16px;font-size:13px;line-height:1.6;color:var(--text-secondary);white-space:pre-wrap;min-height:80px">
+                    -
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary"
+                    onclick="document.getElementById('historyDetailModal').classList.remove('open')"
+                    style="width:100%">Tutup</button>
+            </div>
+        </div>
+    </div>
     <!-- ===== MODAL QR SCAN ===== -->
     <div class="modal-backdrop" id="qrScanModal">
         <div class="modal modal-qr">
@@ -832,6 +921,42 @@
         </div>
     </div>
 
+    <!-- ===== MODAL RIWAYAT INSPEKSI (HISTORY) ===== -->
+    <div class="modal-backdrop" id="inspeksiHistoryModal">
+        <div class="modal modal-md">
+            <div class="modal-header">
+                <h2 class="modal-title">Riwayat Inspeksi Mingguan</h2>
+                <button class="modal-close" id="inspeksiHistoryModalClose">✕</button>
+            </div>
+            <div class="modal-body" style="padding: 16px;">
+                <div
+                    style="display:flex;align-items:center;gap:12px;margin-bottom:16px;background:var(--bg-secondary);padding:12px;border-radius:8px;border:1px solid var(--border)">
+                    <div style="font-size:32px">🔍</div>
+                    <div>
+                        <div id="ih-aset-nama" style="font-weight:700;font-size:15px;color:var(--text-primary)">-</div>
+                        <div id="ih-aset-kode" style="font-size:12px;color:var(--text-muted)">-</div>
+                    </div>
+                </div>
+                <div class="table-wrapper" style="max-height: 400px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Kondisi</th>
+                                <th>Inspektur</th>
+                                <th>Keterangan</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inspeksi-history-tbody">
+                            <!-- Diisi via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== MODAL INSPEKSI ASET ===== -->
     <div class="modal-backdrop" id="inspeksiModal">
         <div class="modal">
@@ -866,9 +991,10 @@
                         <select id="inspeksi-kondisi">
                             <option value="">— Belum Diperiksa —</option>
                             <option value="Baik">Baik</option>
-                            <option value="Cukup">Cukup</option>
-                            <option value="Buruk">Buruk</option>
+                            <option value="Perbaikan">Perbaikan</option>
+                            <option value="Rusak">Rusak</option>
                             <option value="Perlu Tindakan">Perlu Tindakan</option>
+                            <option value="ditelusuri">ditelusuri</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -992,8 +1118,9 @@
                             <label for="f-kondisi">Kondisi</label>
                             <select id="f-kondisi">
                                 <option value="Baik">Baik</option>
-                                <option value="Cukup">Cukup</option>
-                                <option value="Buruk">Buruk</option>
+                                <option value="Perbaikan">Perbaikan</option>
+                                <option value="Rusak">Rusak</option>
+                                <option value="ditelusuri">ditelusuri</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -1068,7 +1195,7 @@
     <div class="toast" id="toast"></div>
 
 
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=4"></script>
     <script>
         // ── PWA Service Worker Registration ──
         if ('serviceWorker' in navigator) {

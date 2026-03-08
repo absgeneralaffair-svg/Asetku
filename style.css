@@ -308,6 +308,23 @@ a {
     width: 100%;
 }
 
+.search-clear-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.search-clear-btn:hover {
+    color: var(--accent-red);
+}
+
 /* ===========================
    4. PAGES
    =========================== */
@@ -331,6 +348,136 @@ a {
         opacity: 1;
         transform: none;
     }
+}
+
+/* ===========================
+   4a. DASHBOARD COMPACT GRID
+   =========================== */
+.dash-page-compact {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: 100%;
+    gap: 12px;
+    height: calc(100vh - 80px);
+    /* 1 screen minus header */
+    padding: 12px;
+    overflow: hidden;
+    /* no vertical scroll */
+}
+
+.dash-col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+}
+
+.dash-col-left,
+.dash-col-mid,
+.dash-col-right {
+    min-width: 0;
+    /* Prever grid blowout */
+}
+
+/* Compact Overrides */
+.dash-page-compact .card {
+    margin-bottom: 0;
+}
+
+/* Shrink components to fit single screen */
+.dash-page-compact .card-header {
+    padding: 8px 12px;
+}
+
+.dash-page-compact .card-header .card-title {
+    font-size: 13px !important;
+}
+
+.dash-page-compact .btn {
+    padding: 6px 12px;
+}
+
+.dash-page-compact .quick-actions {
+    gap: 8px;
+}
+
+.dash-page-compact .qa-btn {
+    padding: 8px 10px;
+    font-size: 11px;
+}
+
+.stats-grid-compact {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.stats-grid-compact .stat-card {
+    padding: 10px 14px;
+    gap: 12px;
+}
+
+.stats-grid-compact .stat-value {
+    font-size: 24px !important;
+}
+
+.dash-interactive-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    flex: 1;
+    min-height: 0;
+    /* Important to prevent blowout */
+}
+
+.dash-interactive-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.grid-compact {
+    overflow-y: auto;
+    /* allows scroll inside the card if too many categories */
+    flex: 1;
+    min-height: 0;
+    gap: 8px !important;
+    padding: 8px 12px 12px !important;
+}
+
+.dash-page-compact .cat-card {
+    padding: 10px;
+    gap: 8px;
+}
+
+.dash-page-compact .cat-count {
+    font-size: 20px !important;
+}
+
+.dash-page-compact .compact-chart {
+    min-height: 80px;
+    max-height: 120px;
+    padding: 10px;
+}
+
+.dash-recent-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    /* Important for flex-child scroll */
+}
+
+.dash-recent-table {
+    display: block;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.dash-recent-table th,
+.dash-recent-table td {
+    padding: 6px 10px !important;
+    font-size: 11px;
 }
 
 /* ===========================
@@ -504,8 +651,8 @@ a {
 
 .cat-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    border-color: rgba(56, 139, 253, 0.4);
+    box-shadow: 0 12px 24px -8px rgba(56, 139, 253, 0.3);
+    border-color: rgba(56, 139, 253, 0.5);
 }
 
 .cat-card:hover::before {
@@ -527,6 +674,11 @@ a {
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cat-card:hover .cat-icon {
+    transform: scale(1.15) rotate(-5deg);
 }
 
 .cat-title {
@@ -596,6 +748,7 @@ a {
     letter-spacing: 0.5px;
     margin-bottom: 12px;
 }
+
 /* --- End Interactive Category CSS --- */
 
 /* ===========================
@@ -632,6 +785,43 @@ a {
     transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
     cursor: pointer;
+}
+
+/* Vertical Chart Layout (Horizontal Bars) */
+.chart-container.vertical-chart {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding-bottom: 12px;
+}
+
+.vertical-chart .bar-wrap {
+    flex-direction: row;
+    width: 100%;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.vertical-chart .bar {
+    border-radius: 0 4px 4px 0;
+    order: 2;
+    min-height: unset;
+    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.vertical-chart .bar-label {
+    order: 1;
+    width: 70px;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vertical-chart .bar-value {
+    order: 3;
+    width: 30px;
+    text-align: left;
 }
 
 .bar:hover {
@@ -750,8 +940,32 @@ a {
     cursor: default;
 }
 
+.data-table tbody tr {
+    transition: all 0.2s ease;
+}
+
 .data-table tbody tr:hover {
-    background: rgba(56, 139, 253, 0.04);
+    background: rgba(56, 139, 253, 0.08);
+    transform: translateX(4px);
+    box-shadow: -2px 0 0 var(--accent-blue);
+}
+
+/* ===========================
+   Interactive Chart Styles
+   =========================== */
+.chart-container .bar-wrap {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+}
+
+.chart-container:hover .bar-wrap {
+    opacity: 0.5;
+}
+
+.chart-container .bar-wrap:hover {
+    opacity: 1;
+    transform: scaleY(1.05) scaleX(1.1);
+    filter: brightness(1.2);
 }
 
 .table-footer {
@@ -833,12 +1047,12 @@ a {
     color: var(--accent-green);
 }
 
-.badge-cukup {
+.badge-perbaikan {
     background: var(--accent-yellow-dim);
     color: var(--accent-yellow);
 }
 
-.badge-buruk {
+.badge-rusak {
     background: var(--accent-red-dim);
     color: var(--accent-red);
 }
@@ -1728,8 +1942,6 @@ select {
    23. VIEWER MODE (Read-Only)
    =========================== */
 /* Hide all write-action buttons when viewer-mode is active on body */
-.viewer-mode .btn-icon.edit,
-.viewer-mode .btn-icon.delete,
 .viewer-mode .tag-remove,
 .viewer-mode #addAssetBtn,
 .viewer-mode #addHistoryBtn,
@@ -1772,6 +1984,32 @@ select {
     border-radius: var(--radius);
     position: relative;
     overflow: hidden;
+    animation: dashboardEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Staggered Dashboard Entrance */
+@keyframes dashboardEnter {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stats-grid-compact {
+    animation: dashboardEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+.dash-interactive-row {
+    animation: dashboardEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+.dash-bottom-row {
+    animation: dashboardEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
 }
 
 .dash-hero::before {
@@ -1780,6 +2018,17 @@ select {
     inset: 0;
     background: linear-gradient(135deg, rgba(56, 139, 253, 0.06) 0%, rgba(188, 140, 255, 0.04) 100%);
     pointer-events: none;
+    animation: bgDrift 15s ease-in-out infinite alternate;
+}
+
+@keyframes bgDrift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 100% 50%;
+    }
 }
 
 .dash-hero::after {
@@ -1860,6 +2109,39 @@ select {
 .stat-card {
     position: relative;
     overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+
+.stat-card.card-blue:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(56, 139, 253, 0.4);
+    border-color: rgba(56, 139, 253, 0.5);
+}
+
+.stat-card.card-green:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(63, 185, 80, 0.4);
+    border-color: rgba(63, 185, 80, 0.5);
+}
+
+.stat-card.card-yellow:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(210, 153, 34, 0.4);
+    border-color: rgba(210, 153, 34, 0.5);
+}
+
+.stat-card.card-red:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(248, 81, 73, 0.4);
+    border-color: rgba(248, 81, 73, 0.5);
+}
+
+.stat-card:hover .stat-icon-wrap {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.stat-icon-wrap {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .stat-card-glow {
@@ -1871,11 +2153,12 @@ select {
     right: -30px;
     opacity: 0.12;
     pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.5s ease;
 }
 
 .stat-card:hover .stat-card-glow {
-    opacity: 0.2;
+    opacity: 0.25;
+    transform: scale(1.2) translate(-5px, 5px);
 }
 
 .blue-glow {
@@ -2304,6 +2587,7 @@ select {
     text-align: right;
     flex: 1;
 }
+
 /* ===========================
    INSPEKSI ASET
    =========================== */
@@ -2313,17 +2597,25 @@ select {
     background: var(--accent-blue-dim);
     color: var(--accent-blue);
 }
+
 .badge-selesai-inspeksi {
     background: var(--accent-green-dim);
     color: var(--accent-green);
 }
+
 .badge-terlambat {
     background: var(--accent-red-dim);
     color: var(--accent-red);
 }
+
 .badge-perlu-tindakan {
     background: var(--accent-yellow-dim);
     color: var(--accent-yellow);
+}
+
+.badge-ditelusuri {
+    background: rgba(188, 140, 255, 0.15);
+    color: var(--accent-purple);
 }
 
 /* Summary strip */
@@ -2333,6 +2625,7 @@ select {
     gap: 14px;
     margin-bottom: 0;
 }
+
 .inspeksi-card {
     display: flex;
     align-items: center;
@@ -2343,22 +2636,60 @@ select {
     padding: 18px 20px;
     transition: var(--transition);
 }
-.inspeksi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-.inspeksi-card-icon { font-size: 26px; }
-.inspeksi-card-value { font-size: 28px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
-.inspeksi-card-label { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
 
-.inspeksi-card-red   { border-left: 3px solid var(--accent-red); }
-.inspeksi-card-red .inspeksi-card-value { color: var(--accent-red); }
+.inspeksi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
 
-.inspeksi-card-blue  { border-left: 3px solid var(--accent-blue); }
-.inspeksi-card-blue .inspeksi-card-value { color: var(--accent-blue); }
+.inspeksi-card-icon {
+    font-size: 26px;
+}
 
-.inspeksi-card-green { border-left: 3px solid var(--accent-green); }
-.inspeksi-card-green .inspeksi-card-value { color: var(--accent-green); }
+.inspeksi-card-value {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
 
-.inspeksi-card-neutral { border-left: 3px solid var(--text-muted); }
-.inspeksi-card-neutral .inspeksi-card-value { color: var(--text-primary); }
+.inspeksi-card-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 3px;
+}
+
+.inspeksi-card-red {
+    border-left: 3px solid var(--accent-red);
+}
+
+.inspeksi-card-red .inspeksi-card-value {
+    color: var(--accent-red);
+}
+
+.inspeksi-card-blue {
+    border-left: 3px solid var(--accent-blue);
+}
+
+.inspeksi-card-blue .inspeksi-card-value {
+    color: var(--accent-blue);
+}
+
+.inspeksi-card-green {
+    border-left: 3px solid var(--accent-green);
+}
+
+.inspeksi-card-green .inspeksi-card-value {
+    color: var(--accent-green);
+}
+
+.inspeksi-card-neutral {
+    border-left: 3px solid var(--text-muted);
+}
+
+.inspeksi-card-neutral .inspeksi-card-value {
+    color: var(--text-primary);
+}
 
 /* ===========================
    QUICK KONDISI BUTTONS
@@ -2368,6 +2699,7 @@ select {
     gap: 4px;
     flex-wrap: wrap;
 }
+
 .qk-btn {
     padding: 3px 8px;
     border-radius: 12px;
@@ -2381,24 +2713,95 @@ select {
     color: var(--text-muted);
     white-space: nowrap;
 }
-.qk-btn:hover { opacity: 1; transform: translateY(-1px); }
-.qk-btn.qk-active { opacity: 1; }
 
-.qk-baik     { border-color: var(--accent-green);  }
-.qk-baik.qk-active    { background: var(--accent-green-dim); color: var(--accent-green); border-color: var(--accent-green); }
-.qk-baik:hover         { background: var(--accent-green-dim); color: var(--accent-green); border-color: var(--accent-green); }
+.qk-btn:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+}
 
-.qk-cukup    { border-color: var(--accent-yellow); }
-.qk-cukup.qk-active   { background: var(--accent-yellow-dim); color: var(--accent-yellow); border-color: var(--accent-yellow); }
-.qk-cukup:hover        { background: var(--accent-yellow-dim); color: var(--accent-yellow); border-color: var(--accent-yellow); }
+.qk-btn.qk-active {
+    opacity: 1;
+}
 
-.qk-buruk    { border-color: #ffa657; }
-.qk-buruk.qk-active   { background: rgba(255,166,87,0.12); color: #ffa657; border-color: #ffa657; }
-.qk-buruk:hover        { background: rgba(255,166,87,0.12); color: #ffa657; border-color: #ffa657; }
+.qk-baik {
+    border-color: var(--accent-green);
+}
 
-.qk-tindakan { border-color: var(--accent-red); }
-.qk-tindakan.qk-active { background: var(--accent-red-dim); color: var(--accent-red); border-color: var(--accent-red); }
-.qk-tindakan:hover     { background: var(--accent-red-dim); color: var(--accent-red); border-color: var(--accent-red); }
+.qk-baik.qk-active {
+    background: var(--accent-green-dim);
+    color: var(--accent-green);
+    border-color: var(--accent-green);
+}
+
+.qk-baik:hover {
+    background: var(--accent-green-dim);
+    color: var(--accent-green);
+    border-color: var(--accent-green);
+}
+
+.qk-perbaikan {
+    border-color: var(--accent-yellow);
+}
+
+.qk-perbaikan.qk-active {
+    background: var(--accent-yellow-dim);
+    color: var(--accent-yellow);
+    border-color: var(--accent-yellow);
+}
+
+.qk-perbaikan:hover {
+    background: var(--accent-yellow-dim);
+    color: var(--accent-yellow);
+    border-color: var(--accent-yellow);
+}
+
+.qk-rusak {
+    border-color: #ffa657;
+}
+
+.qk-rusak.qk-active {
+    background: rgba(255, 166, 87, 0.12);
+    color: #ffa657;
+    border-color: #ffa657;
+}
+
+.qk-rusak:hover {
+    background: rgba(255, 166, 87, 0.12);
+    color: #ffa657;
+    border-color: #ffa657;
+}
+
+.qk-tindakan {
+    border-color: var(--accent-red);
+}
+
+.qk-tindakan.qk-active {
+    background: var(--accent-red-dim);
+    color: var(--accent-red);
+    border-color: var(--accent-red);
+}
+
+.qk-tindakan:hover {
+    background: var(--accent-red-dim);
+    color: var(--accent-red);
+    border-color: var(--accent-red);
+}
+
+.qk-ditelusuri {
+    border-color: var(--accent-purple);
+}
+
+.qk-ditelusuri.qk-active {
+    background: rgba(188, 140, 255, 0.15);
+    color: var(--accent-purple);
+    border-color: var(--accent-purple);
+}
+
+.qk-ditelusuri:hover {
+    background: rgba(188, 140, 255, 0.15);
+    color: var(--accent-purple);
+    border-color: var(--accent-purple);
+}
 
 /* ===========================
    INSPEKSI — LOKASI GROUPS
@@ -2420,10 +2823,21 @@ select {
     user-select: none;
     transition: background 0.15s;
 }
-.lokasi-group-header:hover { background: var(--hover-bg); }
 
-.lokasi-group-icon { font-size: 15px; }
-.lokasi-group-name { font-weight: 700; font-size: 14px; flex: 1; }
+.lokasi-group-header:hover {
+    background: var(--hover-bg);
+}
+
+.lokasi-group-icon {
+    font-size: 15px;
+}
+
+.lokasi-group-name {
+    font-weight: 700;
+    font-size: 14px;
+    flex: 1;
+}
+
 .lokasi-group-count {
     font-size: 11px;
     color: var(--text-muted);
@@ -2431,6 +2845,7 @@ select {
     padding: 2px 8px;
     border-radius: 10px;
 }
+
 .lokasi-group-toggle {
     font-size: 12px;
     color: var(--text-muted);
@@ -2444,6 +2859,7 @@ select {
     border-radius: 3px;
     overflow: hidden;
 }
+
 .lokasi-progress-fill {
     height: 100%;
     border-radius: 3px;
@@ -2455,6 +2871,7 @@ select {
     overflow: hidden;
     transition: max-height 0.3s ease;
 }
+
 .lokasi-group-body.collapsed {
     display: none;
 }
@@ -2467,7 +2884,7 @@ select {
 .insp-date-input:focus,
 .insp-name-input:focus {
     border-color: var(--accent-blue) !important;
-    box-shadow: 0 0 0 2px rgba(56,139,253,0.15);
+    box-shadow: 0 0 0 2px rgba(56, 139, 253, 0.15);
 }
 
 /* ===========================
@@ -2500,10 +2917,19 @@ select {
     animation: qrScanMove 2s ease-in-out infinite;
     z-index: 3;
 }
+
 @keyframes qrScanMove {
-    0%   { top: 10%; }
-    50%  { top: 85%; }
-    100% { top: 10%; }
+    0% {
+        top: 10%;
+    }
+
+    50% {
+        top: 85%;
+    }
+
+    100% {
+        top: 10%;
+    }
 }
 
 /* Corner markers */
@@ -2515,10 +2941,34 @@ select {
     border-style: solid;
     z-index: 4;
 }
-.qr-tl { top: 10%; left: 10%; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
-.qr-tr { top: 10%; right: 10%; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
-.qr-bl { bottom: 10%; left: 10%; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
-.qr-br { bottom: 10%; right: 10%; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+.qr-tl {
+    top: 10%;
+    left: 10%;
+    border-width: 3px 0 0 3px;
+    border-radius: 4px 0 0 0;
+}
+
+.qr-tr {
+    top: 10%;
+    right: 10%;
+    border-width: 3px 3px 0 0;
+    border-radius: 0 4px 0 0;
+}
+
+.qr-bl {
+    bottom: 10%;
+    left: 10%;
+    border-width: 0 0 3px 3px;
+    border-radius: 0 0 0 4px;
+}
+
+.qr-br {
+    bottom: 10%;
+    right: 10%;
+    border-width: 0 3px 3px 0;
+    border-radius: 0 0 4px 0;
+}
 
 /* Status bar */
 .qr-status {
@@ -2529,9 +2979,21 @@ select {
     border-radius: var(--radius-sm);
     font-weight: 500;
 }
-.qr-status-waiting  { background: var(--bg-secondary); color: var(--text-muted); }
-.qr-status-success  { background: var(--accent-green-dim); color: var(--accent-green); }
-.qr-status-error    { background: var(--accent-red-dim); color: var(--accent-red); }
+
+.qr-status-waiting {
+    background: var(--bg-secondary);
+    color: var(--text-muted);
+}
+
+.qr-status-success {
+    background: var(--accent-green-dim);
+    color: var(--accent-green);
+}
+
+.qr-status-error {
+    background: var(--accent-red-dim);
+    color: var(--accent-red);
+}
 
 /* Match result card */
 .qr-match-card {
@@ -2540,12 +3002,14 @@ select {
     border-radius: var(--radius);
     padding: 14px;
 }
+
 .qr-match-header {
     display: flex;
     flex-direction: column;
     gap: 4px;
     margin-bottom: 8px;
 }
+
 .qr-match-meta {
     display: flex;
     align-items: center;
@@ -2558,9 +3022,15 @@ select {
 .row-highlight {
     animation: rowFlash 2.5s ease-out;
 }
+
 @keyframes rowFlash {
-    0%   { background: rgba(56,139,253,0.25); }
-    100% { background: transparent; }
+    0% {
+        background: rgba(56, 139, 253, 0.25);
+    }
+
+    100% {
+        background: transparent;
+    }
 }
 
 /* ===========================
@@ -2569,23 +3039,46 @@ select {
 
 /* -- Touch targets ------------------ */
 @media (max-width: 768px) {
+
     /* Larger touch targets */
-    .btn, .btn-icon, .nav-item, select, input, textarea {
+    .btn,
+    .btn-icon,
+    .nav-item,
+    select,
+    input,
+    textarea {
         min-height: 40px;
     }
-    .btn-icon { width: 36px; height: 36px; font-size: 15px; }
+
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 15px;
+    }
 
     /* Topbar compact */
     .topbar {
         height: 52px;
         gap: 8px;
     }
-    .topbar-right { gap: 6px; }
-    #addAssetBtn span { display: none; }
-    #addAssetBtn { padding: 0 10px; min-width: 36px; }
+
+    .topbar-right {
+        gap: 6px;
+    }
+
+    #addAssetBtn span {
+        display: none;
+    }
+
+    #addAssetBtn {
+        padding: 0 10px;
+        min-width: 36px;
+    }
 
     /* Main page padding */
-    .page { padding: 12px; }
+    .page {
+        padding: 12px;
+    }
 
     /* Tables — horizontal scroll */
     .table-wrapper {
@@ -2593,18 +3086,50 @@ select {
         -webkit-overflow-scrolling: touch;
         border-radius: 0;
     }
-    .data-table { min-width: 600px; }
-    .data-table th, .data-table td { padding: 8px 10px; font-size: 12px; }
+
+    .data-table {
+        min-width: 600px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
 
     /* Toolbar wraps */
-    .toolbar { gap: 8px; padding: 12px; }
-    .toolbar-left { gap: 6px; flex-wrap: wrap; width: 100%; }
-    .toolbar-right { width: 100%; justify-content: flex-end; }
-    .filter-group { flex: 1; min-width: 130px; }
-    .filter-group select, .filter-group input { width: 100%; }
+    .toolbar {
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .toolbar-left {
+        gap: 6px;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .toolbar-right {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 130px;
+    }
+
+    .filter-group select,
+    .filter-group input {
+        width: 100%;
+    }
 
     /* Modals full screen on mobile */
-    .modal-backdrop { align-items: flex-end; padding: 0; }
+    .modal-backdrop {
+        align-items: flex-end;
+        padding: 0;
+    }
+
     .modal {
         width: 100vw;
         max-width: 100vw;
@@ -2612,84 +3137,167 @@ select {
         max-height: 92dvh;
         overflow-y: auto;
     }
+
     .modal-detail {
         max-width: 100vw;
     }
+
     .modal-qr {
         max-width: 100vw;
         border-radius: 16px 16px 0 0;
     }
-    .modal-body { padding: 14px; }
-    .modal-footer { padding: 12px 14px; }
+
+    .modal-body {
+        padding: 14px;
+    }
+
+    .modal-footer {
+        padding: 12px 14px;
+    }
 
     /* Quick kondisi buttons - bigger */
-    .qk-btn { padding: 6px 10px; font-size: 12px; }
+    .qk-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
 
     /* Inspeksi inline inputs stack */
-    .insp-date-input, .insp-name-input { width: 100% !important; }
+    .insp-date-input,
+    .insp-name-input {
+        width: 100% !important;
+    }
 
     /* Summary cards 2 per row */
     .inspeksi-summary {
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
     }
-    .inspeksi-card-value { font-size: 22px; }
+
+    .inspeksi-card-value {
+        font-size: 22px;
+    }
 
     /* Lokasi group header wraps */
-    .lokasi-group { margin: 8px 10px; }
-    .lokasi-group-header { flex-wrap: wrap; gap: 6px; }
-    .lokasi-progress-bar { width: 80px; }
+    .lokasi-group {
+        margin: 8px 10px;
+    }
+
+    .lokasi-group-header {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .lokasi-progress-bar {
+        width: 80px;
+    }
 
     /* Detail modal rows stack on small */
-    .detail-row { flex-direction: column; gap: 2px; }
-    .detail-row > span:first-child { min-width: unset; }
-    .detail-row > *:last-child { text-align: left; }
+    .detail-row {
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .detail-row>span:first-child {
+        min-width: unset;
+    }
+
+    .detail-row>*:last-child {
+        text-align: left;
+    }
 
     /* Dashboard hero */
-    .dash-hero { flex-direction: column; gap: 12px; padding: 16px; }
-    .dash-hero-right { width: 100%; }
+    .dash-hero {
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .dash-hero-right {
+        width: 100%;
+    }
 
     /* Age badge in table wraps */
-    .age-badge { font-size: 10px; padding: 2px 6px; }
+    .age-badge {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
 
     /* Riwayat count badge */
-    .riwayat-count-badge { padding: 3px 8px; font-size: 11px; }
+    .riwayat-count-badge {
+        padding: 3px 8px;
+        font-size: 11px;
+    }
 }
 
 @media (max-width: 480px) {
+
     /* Single column summary */
-    .stats-grid { grid-template-columns: 1fr; }
-    .inspeksi-summary { grid-template-columns: repeat(2, 1fr); }
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .inspeksi-summary {
+        grid-template-columns: repeat(2, 1fr);
+    }
 
     /* Hide search in topbar to save space */
-    .topbar-right .search-box { display: none; }
+    .topbar-right .search-box {
+        display: none;
+    }
 
     /* Page padding smaller */
-    .page { padding: 10px 8px; }
+    .page {
+        padding: 10px 8px;
+    }
 
     /* Card padding smaller */
-    .card { padding: 0; border-radius: 10px; }
-    .card-header { padding: 12px 14px; }
+    .card {
+        padding: 0;
+        border-radius: 10px;
+    }
+
+    .card-header {
+        padding: 12px 14px;
+    }
 
     /* Table even more compact */
-    .data-table th, .data-table td { padding: 7px 8px; font-size: 11px; }
+    .data-table th,
+    .data-table td {
+        padding: 7px 8px;
+        font-size: 11px;
+    }
 
     /* Toolbar compact */
-    .toolbar { padding: 10px; }
-    .filter-group { min-width: 110px; }
+    .toolbar {
+        padding: 10px;
+    }
+
+    .filter-group {
+        min-width: 110px;
+    }
 
     /* Form rows */
-    .form-group label { font-size: 12px; }
-    .form-group input, .form-group select, .form-group textarea {
-        font-size: 14px; /* prevent iOS zoom on input focus */
+    .form-group label {
+        font-size: 12px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 14px;
+        /* prevent iOS zoom on input focus */
         padding: 8px 10px;
     }
 
     /* Modal header */
-    .modal-title { font-size: 16px; }
+    .modal-title {
+        font-size: 16px;
+    }
 
     /* QR viewfinder smaller */
-    .qr-viewfinder { max-height: 220px; }
+    .qr-viewfinder {
+        max-height: 220px;
+    }
 }
 
 /* -- Bottom safe area for notched phones -- */
@@ -2697,6 +3305,7 @@ select {
     .modal-footer {
         padding-bottom: calc(12px + env(safe-area-inset-bottom));
     }
+
     .sidebar {
         padding-bottom: env(safe-area-inset-bottom);
     }
@@ -2704,8 +3313,13 @@ select {
 
 /* -- Landscape mobile -- */
 @media (max-width: 900px) and (orientation: landscape) {
-    .qr-viewfinder { max-height: 180px; }
-    .modal { max-height: 98dvh; }
+    .qr-viewfinder {
+        max-height: 180px;
+    }
+
+    .modal {
+        max-height: 98dvh;
+    }
 }
 
 /* ===========================
@@ -2713,7 +3327,9 @@ select {
    =========================== */
 
 /* Instant tap response — no 300ms delay */
-* { touch-action: manipulation; }
+* {
+    touch-action: manipulation;
+}
 
 /* Slightly larger sidebar nav items on touch */
 @media (hover: none) and (pointer: coarse) {
@@ -2721,15 +3337,36 @@ select {
         padding: 12px 16px;
         font-size: 14px;
     }
-    .nav-icon { font-size: 18px; }
-    .btn { padding: 10px 18px; font-size: 14px; }
-    .btn-icon { width: 40px; height: 40px; }
-    .qk-btn { padding: 8px 12px; font-size: 13px; }
-    
+
+    .nav-icon {
+        font-size: 18px;
+    }
+
+    .btn {
+        padding: 10px 18px;
+        font-size: 14px;
+    }
+
+    .btn-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .qk-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
     /* Prevent hover states sticking on touch */
-    .nav-item:hover { background: transparent; }
-    .asset-row:hover { background: transparent !important; }
+    .nav-item:hover {
+        background: transparent;
+    }
+
+    .asset-row:hover {
+        background: transparent !important;
+    }
 }
+
 /* ===========================
    ENHANCED RESPONSIVE â€” SEMUA PERANGKAT
    =========================== */
@@ -3185,10 +3822,12 @@ select {
 .search-box {
     position: relative;
 }
+
 .search-input-wrap {
     position: relative;
     display: inline-block;
 }
+
 .search-clear-btn {
     position: absolute;
     right: 6px;
@@ -3205,6 +3844,7 @@ select {
     transition: color 0.2s, background 0.2s;
     z-index: 2;
 }
+
 .search-clear-btn:hover {
     color: var(--accent-red);
     background: rgba(248, 81, 73, 0.12);
