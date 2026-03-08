@@ -2965,6 +2965,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
+    // Category & Location Buttons
+    const addCatBtn = document.getElementById('addCategoryBtn');
+    if (addCatBtn) addCatBtn.addEventListener('click', addCategory);
+
+    const addLocBtn = document.getElementById('addLocationBtn');
+    if (addLocBtn) addLocBtn.addEventListener('click', addLocation);
+
     // Menu toggle
     document.getElementById('menuBtn').addEventListener('click', openSidebar);
     document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
