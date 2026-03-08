@@ -32,6 +32,11 @@
 
     // ── UTILITY: Tampil status sync di UI ─────────────────────────────
     function showSyncStatus(text, isError = false) {
+        if (!document.body) {
+            // Jika dipanggil sebelum body selesai dirender
+            document.addEventListener('DOMContentLoaded', () => showSyncStatus(text, isError), { once: true });
+            return;
+        }
         let el = document.getElementById('sync-status-bar');
         if (!el) {
             el = document.createElement('div');
@@ -111,7 +116,16 @@
     }
 
     // ── MAIN: inisialisasi Firebase + sync ────────────────────────────
-    window._firebaseSyncReady = (async () => {
+    window._firebaseSyncReady = new Promise((resolve) => {
+        // Tunggu sampai HTML selesai dimuat baru inisialisasi
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => initFirebase().then(resolve));
+        } else {
+            initFirebase().then(resolve);
+        }
+    });
+
+    async function initFirebase() {
         try {
             // Load Firebase SDK jika belum ada
             if (typeof firebase === 'undefined') {
@@ -141,7 +155,7 @@
             showSyncStatus('Tidak dapat terhubung ke cloud. Mode lokal aktif.', true);
             return false;
         }
-    })();
+    }
 
     // ── Expose: render ulang halaman saat ini ─────────────────────────
     // Ini dipanggil ketika ada update dari Firestore

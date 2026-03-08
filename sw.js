@@ -3,7 +3,7 @@
  * PWA offline support + caching
  */
 
-const CACHE_NAME = 'asetku-v7';
+const CACHE_NAME = 'asetku-v8';
 const STATIC_ASSETS = [
     './',
     './index.html',

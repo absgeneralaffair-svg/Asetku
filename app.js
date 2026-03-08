@@ -2945,9 +2945,15 @@ function generateAssetQR(asetId) {
     win.document.close();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     if (!checkAuth()) return;
     renderSessionUser();
+
+    // Tunggu Firebase sync selesai tarik data dari cloud (jika terhubung)
+    if (window._firebaseSyncReady) {
+        await window._firebaseSyncReady;
+    }
+
     load();
     renderDashboard();
 
